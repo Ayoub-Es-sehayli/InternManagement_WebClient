@@ -17,6 +17,8 @@ export default class Ui extends VuexModule {
     "Stage Annulé"
   ];
 
+  documentState: String[] = ["Absent", "Soumis", "Non Valide", "Valide"];
+
   @Mutation
   setTitle(value: String) {
     this.title = value;
