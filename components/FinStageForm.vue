@@ -102,7 +102,7 @@ export default class FinStageForm extends Vue {
   }
 
   reportValidity() {
-    if (this.reportDto.valid) {
+    if (!this.reportDto.valid) {
       return "Invalid";
     }
     return "Valid";

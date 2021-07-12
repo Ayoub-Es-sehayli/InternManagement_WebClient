@@ -23,6 +23,15 @@
       >{{ uiModule.internStates[intern.state - 1] }}
     </div>
     <div class="dossier"><b-icon icon="inbox-multiple"></b-icon>Dossier</div>
+    <div class="actions">
+      <InternActionsMenu>
+        <template #trigger>
+          <b-button type="is-warning" icon-left="pencil" stretch>
+            Options
+          </b-button>
+        </template>
+      </InternActionsMenu>
+    </div>
     <div>
       <b-datepicker :events="intern.absentDays">
         <template #trigger>
@@ -33,14 +42,19 @@
       </b-datepicker>
     </div>
     <div class="documents">
-      <b-button
-        rounded
+      <b-tooltip
         v-for="(document, index) in getInternDocumentList()"
         :key="document"
-        :class="getDocumentClass(intern.documents[index])"
+        :label="getDocumentTooltipLabel(intern.documents[index])"
       >
-        {{ document }}
-      </b-button>
+        <b-button
+          expanded
+          rounded
+          :class="getDocumentClass(intern.documents[index])"
+        >
+          {{ document }}
+        </b-button>
+      </b-tooltip>
     </div>
     <b-button class="proceed-btn" @click="showEndModal()" expanded
       >Procèder à Fin de stage</b-button
@@ -133,6 +147,19 @@ export default class InternInfo extends Vue {
     }
   }
 
+  getDocumentTooltipLabel(documentState: eDocumentState) {
+    switch (documentState) {
+      case eDocumentState.Missing:
+        return this.uiModule.documentState[documentState];
+      case eDocumentState.Valid:
+        return this.uiModule.documentState[documentState];
+      case eDocumentState.Submitted:
+        return this.uiModule.documentState[documentState];
+      case eDocumentState.Invalid:
+        return this.uiModule.documentState[documentState];
+    }
+  }
+
   getInternDocumentList(): String[] {
     if (this.monthDiff(this.intern.startDate, this.intern.endDate) > 1) {
       return [
@@ -179,7 +206,7 @@ export default class InternInfo extends Vue {
   column-gap: 20px;
   font-size: 18px;
   grid-template-areas:
-    "decision     decision    state"
+    "decision     state       actions"
     "contact-info date        department"
     "dossier      dossier     absence-info"
     "documents    documents   documents"
@@ -242,5 +269,10 @@ export default class InternInfo extends Vue {
   color: black;
   background-color: #cecece;
   grid-area: absence-info;
+}
+
+.actions {
+  justify-self: center;
+  grid-area: actions;
 }
 </style>
