@@ -33,7 +33,11 @@
       </InternActionsMenu>
     </div>
     <div>
-      <b-datepicker :events="intern.absentDays">
+      <b-datepicker
+        :events="intern.absentDays"
+        :min-date="intern.startDate"
+        :max-date="intern.endDate"
+      >
         <template #trigger>
           <b-button expanded class="absence-info"
             >Absenté {{ intern.absentDays.length }} jours</b-button
