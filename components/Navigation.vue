@@ -8,7 +8,9 @@
       <nuxt-link class="link" to="/interns"
         ><b-icon icon="format-list-numbered"></b-icon>Stagiaires</nuxt-link
       >
-      <a class="link"><b-icon icon="clock-check"></b-icon>Pointage</a>
+      <nuxt-link class="link" to="/PunchIn"
+        ><b-icon icon="clock-check"></b-icon>Pointage</nuxt-link
+      >
       <a class="link"><b-icon icon="cog"></b-icon>Option</a>
       <span></span>
       <a class="link">Connexion</a>
