@@ -1,7 +1,7 @@
 <template>
   <form action="" class="form-grid">
     <div class="stats">
-      {{ countAbsent }} Absentée Aujourd'hui ({{ interns.length }} Total)
+      {{ countAbsent }} Absentée Aujourd'hui ( {{ interns.length }} Total )
     </div>
     <b-select
       expanded
@@ -143,7 +143,7 @@ export default class PunchIn extends Vue {
   grid-area: stats;
   justify-self: center;
   font-weight: 500;
-  font-size: 24px;
+  font-size: 25px;
 }
 .intern {
   grid-area: intern;
