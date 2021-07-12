@@ -83,12 +83,6 @@ export default class PunchIn extends Vue {
       }
     ];
   }
-  get filteredData() {
-    return this.interns.filter(
-      intern =>
-        intern.name.toLowerCase().indexOf(this.searchValue.toLowerCase()) >= 0
-    );
-  }
   get countAbsent() {
     return this.interns.filter(intern => !intern.present).length;
   }
@@ -109,7 +103,14 @@ export default class PunchIn extends Vue {
     });
   }
   markEntered() {
-    this.interns[this.punchInData.intern].present = true;
+    if (!this.interns[this.punchInData.intern].present) {
+      this.interns[this.punchInData.intern].present = true;
+    } else {
+      Dialog.alert({
+        title: "Alerte",
+        message: "Ce Stagiaire est présent déjà!"
+      });
+    }
   }
   markLeft() {
     if (
@@ -120,7 +121,7 @@ export default class PunchIn extends Vue {
     } else {
       Dialog.alert({
         title: "Alerte",
-        message: "Ce Stagiaire n'est pas présent"
+        message: "Ce Stagiaire n'est pas présent!"
       });
     }
   }
@@ -131,7 +132,7 @@ export default class PunchIn extends Vue {
 .form-grid {
   display: grid;
   column-gap: 20px;
-  padding-top: 25%;
+  padding-top: 10%;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 80px 1fr 1fr;
   grid-template-areas:
@@ -147,7 +148,6 @@ export default class PunchIn extends Vue {
 }
 .intern {
   grid-area: intern;
-  width: 300px;
 }
 
 .time {
