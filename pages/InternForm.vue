@@ -162,8 +162,8 @@ export default class InternForm extends Vue {
       return (
         this.intern.documents[0] != eDocumentState.Missing &&
         this.intern.documents[1] != eDocumentState.Missing &&
-        this.intern.documents[2] != eDocumentState.Missing &&
-        this.intern.documents[3] != eDocumentState.Missing
+        this.intern.documents[2] != eDocumentState.Missing
+        // this.intern.documents[3] != eDocumentState.Missing
       );
     } else {
       return (

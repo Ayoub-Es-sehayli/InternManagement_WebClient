@@ -41,7 +41,7 @@
       ></b-input>
     </b-field>
     <b-field
-      label="Email"
+      label="Addresse Email"
       class="email"
       :type="changedState.email ? getValidatorType(validators.email) : ''"
       :message="changedState.email ? getValidatorMessage(validators.email) : ''"
@@ -54,7 +54,7 @@
       ></b-input>
     </b-field>
     <b-field
-      label="Phone"
+      label="Télephone"
       class="phone"
       :type="changedState.phone ? getValidatorType(validators.phone) : ''"
       :message="changedState.phone ? getValidatorMessage(validators.phone) : ''"

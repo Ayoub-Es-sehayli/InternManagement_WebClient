@@ -46,7 +46,7 @@
           aria-controls="contentIdForA11y3"
         >
           <p class="card-header-title">
-            Fin Stages
+            Fin Stage
           </p>
         </div>
       </template>
