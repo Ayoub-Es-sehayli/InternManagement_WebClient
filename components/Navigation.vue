@@ -4,7 +4,11 @@
       <img src="../assets/logo.png" alt="LOGO" />
     </nuxt-link>
     <div class="navlinks">
-      <b-button type="is-medium" rounded class="new-intern">+</b-button>
+      <nuxt-link class="link" to="/InternForm">
+        <b-button type="is-medium" rounded class="new-intern" expanded
+          >+</b-button
+        >
+      </nuxt-link>
       <nuxt-link class="link" to="/interns"
         ><b-icon icon="format-list-numbered"></b-icon>Stagiaires</nuxt-link
       >
