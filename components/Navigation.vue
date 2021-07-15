@@ -13,7 +13,10 @@
       >
       <a class="link"><b-icon icon="cog"></b-icon>Option</a>
       <span></span>
-      <a class="link">Connexion</a>
+      <nuxt-link class="link" to="/Login"
+        ><b-icon icon="account-circle"></b-icon>Connexion</nuxt-link
+      >
+      
     </div>
   </div>
 </template>
