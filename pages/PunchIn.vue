@@ -3,22 +3,20 @@
     <div class="stats">
       {{ countAbsent }} Absentée Aujourd'hui ( {{ interns.length }} Total )
     </div>
-    <b-select
-      expanded
-      size="is-medium"
-      icon="account"
-      class="intern"
-      placeholder="Nom Stagiaire"
-      v-model="punchInData.intern"
-    >
-      <option
-        v-for="(intern, index) in interns"
-        :key="intern.id"
-        :value="index"
+    <div class="intern">
+      <b-autocomplete
+        :data="interns"
+        field="name"
+        v-model="punchInData.intern.name"
+        @select="option => (punchInData.intern = option)"
+        expanded
+        size="is-medium"
+        icon="magnify"
+        placeholder="Nom Stagiaire"
+        clearable
       >
-        {{ intern.name }}
-      </option>
-    </b-select>
+      </b-autocomplete>
+    </div>
     <b-clockpicker
       size="is-medium"
       type="is-light"
@@ -53,7 +51,7 @@ type Intern = {
 };
 
 type PunchInData = {
-  intern: number;
+  intern: Intern;
   time: Date;
 };
 @Component
@@ -64,7 +62,7 @@ export default class PunchIn extends Vue {
   minTime: Date = new Date();
   maxTime: Date = new Date();
   punchInData: PunchInData = {
-    intern: 0,
+    intern: { id: -1, name: "", present: false, left: false },
     time: new Date()
   };
   created() {
@@ -102,9 +100,14 @@ export default class PunchIn extends Vue {
       onConfirm: () => this.markLeft()
     });
   }
+  findInternIndex() {
+    return this.interns.findIndex(
+      intern => intern.id == this.punchInData.intern.id
+    );
+  }
   markEntered() {
-    if (!this.interns[this.punchInData.intern].present) {
-      this.interns[this.punchInData.intern].present = true;
+    if (!this.interns[this.findInternIndex()].present) {
+      this.interns[this.findInternIndex()].present = true;
     } else {
       Dialog.alert({
         title: "Alerte",
@@ -114,10 +117,10 @@ export default class PunchIn extends Vue {
   }
   markLeft() {
     if (
-      this.interns[this.punchInData.intern].present &&
-      !this.interns[this.punchInData.intern].left
+      this.interns[this.findInternIndex()].present &&
+      !this.interns[this.findInternIndex()].left
     ) {
-      this.interns[this.punchInData.intern].left = true;
+      this.interns[this.findInternIndex()].left = true;
     } else {
       Dialog.alert({
         title: "Alerte",
