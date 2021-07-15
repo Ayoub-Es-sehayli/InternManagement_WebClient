@@ -6,9 +6,9 @@
     </div>
     <div class="date">
       <b-icon icon="calendar-text"></b-icon>
-      <strong>De</strong> {{ intern.startDate.toDateString() }}
+      <strong>De</strong> {{ intern.startDate.toLocaleDateString("fr-FR") }}
       <strong>à</strong>
-      {{ intern.endDate.toDateString() }}<br />
+      {{ intern.endDate.toLocaleDateString("fr-FR") }}<br />
       ({{ monthDiff(intern.startDate, intern.endDate) }} mois)
     </div>
     <div class="department">
