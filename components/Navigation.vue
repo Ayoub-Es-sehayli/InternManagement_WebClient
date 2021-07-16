@@ -12,12 +12,21 @@
       <nuxt-link class="link" to="/interns"
         ><b-icon icon="format-list-numbered"></b-icon>Stagiaires</nuxt-link
       >
+
       <nuxt-link class="link" to="/PunchIn"
         ><b-icon icon="clock-check"></b-icon>Pointage</nuxt-link
       >
       <a class="link"><b-icon icon="cog"></b-icon>Option</a>
+      
+      <nuxt-link class="link" to="/Users"
+        ><b-icon icon="account-group"></b-icon>Utilisateurs</nuxt-link
+      >
+
       <span></span>
-      <a class="link">Connexion</a>
+      <nuxt-link class="link" to="/Login"
+        ><b-icon icon="account-circle"></b-icon>Connexion</nuxt-link
+      >
+      
     </div>
   </div>
 </template>
