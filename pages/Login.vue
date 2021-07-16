@@ -1,6 +1,6 @@
 <template>
   <section class="form">
-    <b-field class="login" label="Nom d'utilisateur">
+    <b-field class="login" label="Email">
       <b-input
         placeholder="Entrez l'email"
         v-model="username"
@@ -47,7 +47,7 @@ export default class Login extends Vue {
 
   created(){
     this.uiModule = getModule(Ui, store);
-    this.uiModule.setTitle("Authentication");
+    this.uiModule.setTitle("Authentification");
   }
 }
 </script>
