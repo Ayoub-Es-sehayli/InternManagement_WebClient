@@ -104,7 +104,7 @@ type Intern = {
   state: eInternState;
 };
 @Component({
-  name: "intern-info"
+  name: "intern-info",
 })
 export default class InternInfo extends Vue {
   uiModule!: Ui;
@@ -126,14 +126,14 @@ export default class InternInfo extends Vue {
         eDocumentState.Missing,
         eDocumentState.Missing,
         eDocumentState.Invalid,
-        eDocumentState.Submitted
+        eDocumentState.Submitted,
       ],
       absentDays: [
         { date: new Date("7/7/2021"), type: "is-danger" },
         { date: new Date("7/12/2021"), type: "is-danger" },
-        { date: new Date("7/22/2021"), type: "is-danger" }
+        { date: new Date("7/22/2021"), type: "is-danger" },
       ],
-      state: eInternState.Started
+      state: eInternState.Started,
     };
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle(this.intern.fullName);
@@ -172,7 +172,7 @@ export default class InternInfo extends Vue {
         "Assurance",
         "Convention",
         "Rapport",
-        "Fiche d'évaluation"
+        "Fiche d'évaluation",
       ];
     }
     return [
@@ -180,7 +180,7 @@ export default class InternInfo extends Vue {
       "Lettre de demande",
       "Assurance",
       "Rapport",
-      "Fiche d'évaluation"
+      "Fiche d'évaluation",
     ];
   }
 
