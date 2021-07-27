@@ -24,13 +24,7 @@
     </div>
     <div class="dossier"><b-icon icon="inbox-multiple"></b-icon>Dossier</div>
     <div class="actions">
-      <InternActionsMenu>
-        <template #trigger>
-          <b-button type="is-warning" icon-left="pencil" stretch>
-            Options
-          </b-button>
-        </template>
-      </InternActionsMenu>
+      <InternActionsMenu btn-text="Options" :id-intern="intern.id" />
     </div>
     <div>
       <b-datepicker
@@ -92,6 +86,7 @@ type AbsentDays = {
   type: String;
 };
 type Intern = {
+  id: number;
   codeDecision: String;
   department: String;
   fullName: String;
@@ -108,33 +103,32 @@ type Intern = {
 })
 export default class InternInfo extends Vue {
   uiModule!: Ui;
-  intern!: Intern;
+  intern: Intern = {
+    id: 1,
+    codeDecision: "1190/2021",
+    department: "Direction Organisation et Capital Humain",
+    fullName: "Mohamed Hariss",
+    email: "mohamed.hariss@gmail.com",
+    phone: "0670088893",
+    startDate: new Date("7/1/2021"),
+    endDate: new Date("8/10/2021"),
+    documents: [
+      eDocumentState.Submitted,
+      eDocumentState.Submitted,
+      eDocumentState.Missing,
+      eDocumentState.Invalid,
+      eDocumentState.Missing,
+    ],
+    absentDays: [
+      { date: new Date("7/7/2021"), type: "is-danger" },
+      { date: new Date("7/12/2021"), type: "is-danger" },
+      { date: new Date("7/22/2021"), type: "is-danger" },
+    ],
+    state: eInternState.Started,
+  };
   endModalVisible: boolean = false;
 
   created() {
-    this.intern = {
-      codeDecision: "1190/2021",
-      department: "Direction Organisation et Capital Humain",
-      fullName: "Mohamed Hariss",
-      email: "mohamed.hariss@gmail.com",
-      phone: "0670088893",
-      startDate: new Date("7/1/2021"),
-      endDate: new Date("8/10/2021"),
-      documents: [
-        eDocumentState.Submitted,
-        eDocumentState.Submitted,
-        eDocumentState.Missing,
-        eDocumentState.Missing,
-        eDocumentState.Invalid,
-        eDocumentState.Submitted,
-      ],
-      absentDays: [
-        { date: new Date("7/7/2021"), type: "is-danger" },
-        { date: new Date("7/12/2021"), type: "is-danger" },
-        { date: new Date("7/22/2021"), type: "is-danger" },
-      ],
-      state: eInternState.Started,
-    };
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle(this.intern.fullName);
   }
@@ -258,6 +252,7 @@ export default class InternInfo extends Vue {
 }
 .state {
   grid-area: state;
+  justify-self: center;
 }
 .dossier {
   grid-area: dossier;

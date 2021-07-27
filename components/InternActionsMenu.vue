@@ -2,7 +2,7 @@
   <div>
     <b-dropdown aria-role="list" position="is-bottom-left">
       <template #trigger>
-        <slot name="trigger"></slot>
+        <b-button type="is-warning">{{ btnText }}</b-button>
       </template>
 
       <b-dropdown-item aria-role="listitem" @click="showPrintModal"
@@ -13,6 +13,9 @@
       >
       <b-dropdown-item aria-role="listitem"
         >Reclamer au Staigaire</b-dropdown-item
+      >
+      <b-dropdown-item aria-role="listitem"
+        >Modifier ce stagiaire</b-dropdown-item
       >
     </b-dropdown>
     <b-modal
@@ -43,12 +46,17 @@
     </b-modal>
   </div>
 </template>
-
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 
 @Component
-export default class InternActionsMenu extends Vue {
+export default class ContextDropdown extends Vue {
+  @Prop()
+  idIntern!: number;
+
+  @Prop()
+  btnText!: string;
+
   printModalVisible: boolean = false;
   documentModalVisible: boolean = false;
 
@@ -61,4 +69,3 @@ export default class InternActionsMenu extends Vue {
   }
 }
 </script>
-<style scoped></style>
