@@ -1,11 +1,17 @@
-import { eDocumentState } from "./eDocumentState";
-import InternInformation from "./InternInformation";
-import InternshipInformation from "./InternshipInformation";
+import { eDocumentState } from "./eDocumentState"
+import { eGender } from "./eGender";
 
 type Intern = {
-  info: InternInformation;
-  internship: InternshipInformation;
-  documents: eDocumentState[];
+  id: number,
+  gender: eGender,
+  firstName: string,
+  lastName: string,
+  email: string,
+  phone: string,
+  startDate: Date,
+  endDate: Date,
+  department: number,
+  documents: eDocumentState[]
 };
 
 export default Intern;
