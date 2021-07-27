@@ -7,13 +7,17 @@
           role="button"
           aria-controls="contentIdForA11y3"
         >
-          <p class="card-header-title">
-            Demande
-          </p>
+          <p class="card-header-title">Demande</p>
         </div>
       </template>
       <div class="card-content demande-grid">
-        <b-switch class="cv" v-model="documents[0]">CV</b-switch>
+        <b-switch
+          class="cv"
+          v-model="documents[0]"
+          :false-value="missing"
+          :true-value="submitted"
+          >CV</b-switch
+        >
         <b-switch
           class="letter"
           v-model="documents[1]"
@@ -45,9 +49,7 @@
           role="button"
           aria-controls="contentIdForA11y3"
         >
-          <p class="card-header-title">
-            Fin Stage
-          </p>
+          <p class="card-header-title">Fin Stage</p>
         </div>
       </template>
       <div class="card-content fin-stage-grid">
@@ -92,7 +94,7 @@ export default class InternDocumentsForm extends Vue {
 
   reportDto: ReportDTO = {
     exists: false,
-    valid: false
+    valid: false,
   };
   missing = eDocumentState.Missing;
   submitted = eDocumentState.Submitted;
@@ -107,17 +109,17 @@ export default class InternDocumentsForm extends Vue {
     if (this.documents[4] == eDocumentState.Missing) {
       this.reportDto = {
         exists: false,
-        valid: false
+        valid: false,
       };
     } else if (this.documents[4] == eDocumentState.Invalid) {
       this.reportDto = {
         exists: true,
-        valid: false
+        valid: false,
       };
     } else if (this.documents[4] == eDocumentState.Valid) {
       this.reportDto = {
         exists: true,
-        valid: true
+        valid: true,
       };
     }
   }
