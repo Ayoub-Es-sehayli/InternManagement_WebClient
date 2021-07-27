@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-table
-      :data="interns_list"
+      :data="interns"
       :row-class="getRowClass"
       paginated
       per-page="8"
@@ -48,54 +48,18 @@
         </template>
       </b-table-column>
       <b-table-column field="actions" label="Actions">
-        <div>
-          <b-dropdown aria-role="list" position="is-bottom-left">
-            <template #trigger>
-              <b-button type="is-warning">...</b-button>
-            </template>
-
-            <b-dropdown-item aria-role="listitem" @click="showPrintModal"
-              >Imprimer</b-dropdown-item
-            >
-            <b-dropdown-item aria-role="listitem" @click="showDocumentModal"
-              >Remplir Document</b-dropdown-item
-            >
-            <b-dropdown-item aria-role="listitem"
-              >Reclamer au Staigaire</b-dropdown-item
-            >
-          </b-dropdown>
-          <b-button type="is-info">
-            <b-icon icon="information-outline" class="action-btn"></b-icon>
-          </b-button>
-        </div>
+        <template v-slot="props">
+          <div class="actions">
+            <InternActionsMenu btn-text="..." :id-intern="props.row.id" />
+            <nuxt-link :to="'/InternInfo/' + props.row.id">
+              <b-button type="is-info">
+                <b-icon icon="information-outline" class="action-btn"></b-icon>
+              </b-button>
+            </nuxt-link>
+          </div>
+        </template>
       </b-table-column>
     </b-table>
-    <b-modal
-      v-model="printModalVisible"
-      has-modal-card
-      trap-focus
-      :destroy-on-hide="false"
-      aria-role="dialog"
-      aria-label="Sélectionner le document à imprimer"
-      aria-modal
-    >
-      <template #default="props">
-        <PrintForm @close="props.close" />
-      </template>
-    </b-modal>
-    <b-modal
-      v-model="documentModalVisible"
-      has-modal-card
-      trap-focus
-      :destroy-on-hide="false"
-      aria-role="dialog"
-      aria-label="Remplir les details du document"
-      aria-modal
-    >
-      <template #default="props">
-        <DocumentForm @close="props.close" />
-      </template>
-    </b-modal>
   </div>
 </template>
 
@@ -105,203 +69,29 @@ import { getModule } from "vuex-module-decorators";
 
 import { store } from "@/store/index";
 import Ui from "@/store/ui";
+import InternModule from "@/store/InternModule";
 import { eInternState } from "@/types/eInternState";
-const uiModule = getModule(Ui, store);
+import InternListItem from "@/types/InternListItem";
+
 @Component({
-  name: "interns"
+  name: "interns",
 })
 export default class Interns extends Vue {
-  interns_list = [
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Cancelled
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Cancelled
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Cancelled
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.ApplicationFilled
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Cancelled
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.IncompleteFile
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.IncompleteFile
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.IncompleteFile
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Cancelled
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.ApplicationFilled
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.FileClosed
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.FileClosed
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Finished
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Khaoula Hassou",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1190/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    },
-    {
-      codeDecision: "1162/2020",
-      fullName: "Mohamed Hariss",
-      department: "Direction Organisation et Capital Humain",
-      state: eInternState.Started
-    }
-  ];
+  uiModule!: Ui;
+  internModule!: InternModule;
+
+  interns: InternListItem[] = [];
   internStates: String[] = [];
-  printModalVisible: boolean = false;
-  documentModalVisible: boolean = false;
 
-  public mounted() {
-    uiModule.setTitle("Liste des Stagiaires");
-    this.internStates = uiModule.internStates;
-  }
+  public async created() {
+    this.uiModule = getModule(Ui, store);
+    this.uiModule.setTitle("Liste des Stagiaires");
+    this.internStates = this.uiModule.internStates;
 
-  showPrintModal() {
-    this.printModalVisible = !this.printModalVisible;
-  }
+    this.internModule = getModule(InternModule, store);
+    await this.internModule.LoadAllInterns();
 
-  showDocumentModal() {
-    this.documentModalVisible = !this.documentModalVisible;
+    this.interns = this.internModule.interns!!;
   }
 
   getRowClass(row: any, index: number) {
@@ -350,5 +140,11 @@ tr.is-success {
 tr.is-warn {
   color: #44342e;
   background-color: #fff59d;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 5px;
 }
 </style>
