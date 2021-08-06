@@ -1,5 +1,5 @@
 import { Module, Mutation, Action, VuexModule } from "vuex-module-decorators";
-import ConfigurationModel from "~/types/configurationModel";
+import ConfigurationModel from "@/types/ConfigurationModel";
 
 @Module({
     name: "configurationModule",

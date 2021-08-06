@@ -35,7 +35,7 @@ export default class InternModule extends VuexModule {
       phone: "0666666666",
       startDate: new Date("7/1/2021"),
       endDate: new Date("8/10/2021"),
-      department: 1,
+      divisionId: 1,
       documents: [
         eDocumentState.Submitted,
         eDocumentState.Submitted,

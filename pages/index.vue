@@ -20,32 +20,30 @@ import GeneralStatsModel from "~/types/GeneralStatsModel";
 @Component
 export default class Index extends Vue {
   uiModule!: Ui;
-  latestInterns: LatestIntern[] = [
-    {
-      id: 1,
-      fullName: "Mohamed Hariss",
-      dateAdded: new Date()
-    }
-  ];
-  finishingInterns: FinishingIntern[] = [
-    {
-      id: 2,
-      fullName: "Abir Othmani",
-      daysToFinish: 4
-    }
-  ];
-  alarmingInterns: AlarmingIntern[] = [
-    {
-      id: 3,
-      fullName: "Amin Driff",
-      message: "Absence de 10 jours"
-    }
-  ];
-  stats: GeneralStatsModel = { absentees: 1, readyToFinish: 3, total: 103 };
+  latestInterns: LatestIntern[] = [];
+  finishingInterns: FinishingIntern[] = [];
+  alarmingInterns: AlarmingIntern[] = [];
+  stats: GeneralStatsModel = { absentees: 0, readyToFinish: 0, total: 0 };
 
   created() {
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle("Accueil");
+
+    this.$axios
+      .$get(process.env.BASE_URL + "/dashboard/latest")
+      .then((data) => (this.latestInterns = data));
+
+    this.$axios
+      .$get(process.env.BASE_URL + "/dashboard/finishing")
+      .then((data) => (this.finishingInterns = data));
+
+    this.$axios
+      .$get(process.env.BASE_URL + "/dashboard/alerts")
+      .then((data) => (this.alarmingInterns = data));
+
+    this.$axios
+      .$get(process.env.BASE_URL + "/dashboard/stats")
+      .then((data) => (this.stats = data));
   }
 }
 </script>

@@ -7,6 +7,8 @@
       <InternshipInfoForm
         :internship="intern.internship"
         :validators="internshipValidator"
+        :departments="departments"
+        :departments-loading="departmentsLoading"
       />
     </b-step-item>
     <b-step-item step="3" label="Documents" clickable>
@@ -22,13 +24,15 @@
         icon-left="chevron-left"
         :disabled="previous.disabled"
         @click.prevent="previous.action"
-        class="prev-btn">
+        class="prev-btn"
+      >
         Précedent
       </b-button>
       <b-button
         :icon-right="next.disabled ? 'account-plus' : 'chevron-right'"
         @click.prevent="nextAction(next)"
-        class="next-btn">
+        class="next-btn"
+      >
         {{ getNextLabel(next.disabled) }}
       </b-button>
     </template>
@@ -47,6 +51,7 @@ import { InfoValidators, InternshipValidators } from "@/types/Validator";
 import InternInformation from "~/types/InternInformation";
 import InternshipInformation from "~/types/InternshipInformation";
 import InternModule from "~/store/InternModule";
+import Department from "@/types/Department";
 type FormDto = {
   id: number;
   info: InternInformation;
@@ -58,6 +63,8 @@ export default class InternForm extends Vue {
   uiModule!: Ui;
   internModule!: InternModule;
   activeStep: number = 1;
+  departments: Department[] = [];
+  departmentsLoading: boolean = true;
   intern: FormDto = {
     id: 0,
     info: {
@@ -70,7 +77,7 @@ export default class InternForm extends Vue {
     internship: {
       startDate: new Date(),
       endDate: new Date(),
-      department: 1,
+      division: 1,
     },
     documents: [],
   };
@@ -93,11 +100,19 @@ export default class InternForm extends Vue {
         internship: {
           startDate: currentIntern.startDate,
           endDate: currentIntern.endDate,
-          department: currentIntern.department,
+          division: currentIntern.divisionId,
         },
         documents: currentIntern.documents,
       };
     }
+
+    this.$axios
+      .$get(process.env.BASE_URL + "/ui/divisions")
+      .then((data: Department[]) => {
+        this.uiModule.setDepartments(data);
+        this.departments = this.uiModule.departments!!;
+        this.departmentsLoading = false;
+      });
   }
   monthDiff(start: Date, end: Date) {
     var time = end.getTime() - start.getTime();
@@ -125,7 +140,8 @@ export default class InternForm extends Vue {
         Dialog.confirm({
           title: "Confirmation",
           message: "Êtes-vous sûre des informations saisis?",
-          onConfirm: () => this.$buefy.toast.open('Les informations sont enregistrer')
+          onConfirm: () =>
+            this.$buefy.toast.open("Les informations sont enregistrer"),
           // TODO: Launch the Save process step
         });
       } else {
@@ -156,8 +172,8 @@ export default class InternForm extends Vue {
   get datesValid() {
     return this.intern.internship.endDate > this.intern.internship.startDate;
   }
-  get departmentValid() {
-    return this.intern.internship.department !== 0;
+  get divisionValid() {
+    return this.intern.internship.division !== 0;
   }
   get documentsValid() {
     if (this.conventionVisible) {
@@ -202,8 +218,8 @@ export default class InternForm extends Vue {
         message:
           "La date de départ doit être antérieure à la date de fin de stage",
       },
-      department: {
-        state: this.departmentValid,
+      division: {
+        state: this.divisionValid,
         message: "Une Entité doit être sélectionnée",
       },
     };
@@ -215,7 +231,7 @@ export default class InternForm extends Vue {
       this.emailValid &&
       this.phoneValid &&
       this.datesValid &&
-      this.departmentValid &&
+      this.divisionValid &&
       this.documentsValid
     );
   }

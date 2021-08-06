@@ -1,6 +1,6 @@
 type InternshipInformation = {
   startDate: Date;
   endDate: Date;
-  department: number;
+  division: number;
 };
 export default InternshipInformation;
