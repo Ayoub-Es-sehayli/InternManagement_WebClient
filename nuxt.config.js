@@ -1,3 +1,4 @@
+require("dotenv").config()
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -36,7 +37,8 @@ export default {
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // https://go.nuxtjs.dev/typescript
-    "@nuxt/typescript-build"
+    "@nuxt/typescript-build",
+    ["@nuxtjs/dotenv", { filename: ".env.dev" }]
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -48,7 +50,9 @@ export default {
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    baseUrl: process.env.BASE_URL
+  },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {}
