@@ -13,7 +13,6 @@ export default class Ui extends VuexModule {
     "Démarré son Stage",
     "Stage Finie",
     "Dossier Clôturé",
-    "Dossier Incomplet",
     "Stage Annulé"
   ];
 

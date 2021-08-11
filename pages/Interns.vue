@@ -7,13 +7,14 @@
       per-page="8"
       default-sort-direction="asc"
       :debounce-search="1000"
+      :loading="internsLoading"
     >
       <b-table-column
-        field="codeDecision"
+        field="decision"
         label="Décision"
         v-slot="props"
         searchable
-        >{{ props.row.codeDecision }}</b-table-column
+        >{{ props.row.decision }}</b-table-column
       >
       <b-table-column
         field="fullName"
@@ -23,13 +24,9 @@
         searchable
         >{{ props.row.fullName }}</b-table-column
       >
-      <b-table-column
-        field="department"
-        label="Entité"
-        v-slot="props"
-        sortable
-        >{{ props.row.department }}</b-table-column
-      >
+      <b-table-column field="division" label="Entité" v-slot="props" sortable>{{
+        props.row.division
+      }}</b-table-column>
       <b-table-column field="state" label="État" searchable>
         <template v-slot="props"
           >{{ internStates[props.row.state - 1] }}
@@ -50,7 +47,11 @@
       <b-table-column field="actions" label="Actions">
         <template v-slot="props">
           <div class="actions">
-            <InternActionsMenu btn-text="..." :id-intern="props.row.id" />
+            <InternActionsMenu
+              btn-text="..."
+              :id-intern="props.row.id"
+              @changed="LoadInterns()"
+            />
             <nuxt-link :to="'/InternInfo/' + props.row.id">
               <b-button type="is-info">
                 <b-icon icon="information-outline" class="action-btn"></b-icon>
@@ -82,6 +83,7 @@ export default class Interns extends Vue {
 
   interns: InternListItem[] = [];
   internStates: String[] = [];
+  internsLoading: boolean = true;
 
   public async created() {
     this.uiModule = getModule(Ui, store);
@@ -89,9 +91,18 @@ export default class Interns extends Vue {
     this.internStates = this.uiModule.internStates;
 
     this.internModule = getModule(InternModule, store);
-    await this.internModule.LoadAllInterns();
 
-    this.interns = this.internModule.interns!!;
+    this.LoadInterns();
+  }
+  LoadInterns() {
+    this.internsLoading = true;
+    this.$axios
+      .$get(process.env.BASE_URL + "/interns")
+      .then((data: InternListItem[]) => {
+        this.internModule.SetInterns(data);
+        this.interns = this.internModule.interns!!;
+        this.internsLoading = false;
+      });
   }
 
   getRowClass(row: any, index: number) {
@@ -104,7 +115,7 @@ export default class Interns extends Vue {
         row_class = "is-success";
         break;
       case eInternState.Finished:
-      case eInternState.IncompleteFile:
+        // case eInternState.IncompleteFile:
         row_class = "is-warn";
         break;
       default:

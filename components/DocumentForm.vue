@@ -51,30 +51,80 @@
         class="cancel-btn"
         @click="$emit('close')"
       />
-      <b-button icon-left="content-save" label="Sauvegarder" class="save-btn" />
+      <b-button
+        icon-left="content-save"
+        label="Sauvegarder"
+        class="save-btn"
+        @click="saveDocument()"
+      />
     </footer>
   </form>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import { eDocuments } from "@/types/eDocuments";
-
-interface IDocument {
-  type: eDocuments;
-  code: String;
-  date: Date;
-}
+import InternModule from "@/store/InternModule";
+import { getModule } from "vuex-module-decorators";
+import { store } from "@/store";
+import DocumentViewModel from "@/types/DocumentViewModel";
 
 @Component
 export default class DocumentForm extends Vue {
+  internModule!: InternModule;
+  @Prop()
+  id!: number;
   selection: eDocuments = eDocuments.Decision;
 
-  document: IDocument = {
+  document: DocumentViewModel = {
     type: eDocuments.Decision,
     code: "",
-    date: new Date()
+    date: new Date(),
   };
+  saving: boolean = false;
+  created() {
+    this.internModule = getModule(InternModule, store);
+  }
+
+  saveDocument() {
+    this.saving = true;
+    let documentType = "decision";
+    switch (this.selection) {
+      case eDocuments.Decision:
+        documentType = "decision";
+        break;
+      case eDocuments.Attestation:
+        documentType = "attestation";
+        break;
+      case eDocuments.Annulation:
+        documentType = "annulation";
+        break;
+    }
+    this.$axios
+      .$post(
+        process.env.BASE_URL + "/interns/" + documentType + "/" + this.id,
+        {
+          internId: this.id,
+          code: this.document.code,
+          date: this.document.date,
+        }
+      )
+      .then((_) => {
+        this.$emit("changed");
+      })
+      .catch((err) => {
+        console.log(err);
+        this.$buefy.toast.open({
+          message: "Le sauvegarde du stagiaire a échoué",
+          type: "is-danger",
+          position: "is-bottom-right",
+        });
+      })
+      .finally(() => {
+        this.saving = false;
+        this.$buefy.toast.open("Les informations sont enregistrées");
+      });
+  }
 
   setFullHeightClass() {
     var el = document.querySelector(".modal-card.document-form");

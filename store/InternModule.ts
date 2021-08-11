@@ -23,7 +23,10 @@ export default class InternModule extends VuexModule {
   SetInterns(interns: InternListItem[]) {
     this.interns = interns;
   }
-
+  @Mutation
+  SetDecisionCode(intern: InternListItem){
+    this.interns!![intern.id] = intern;
+  }
   @Action
   LoadIntern(id: number) {
     const intern: Intern = {
