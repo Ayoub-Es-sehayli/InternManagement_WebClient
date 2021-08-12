@@ -65,6 +65,7 @@ export default class InternForm extends Vue {
   activeStep: number = 1;
   departments: Department[] = [];
   departmentsLoading: boolean = true;
+  saving: boolean = false;
   intern: FormDto = {
     id: 0,
     info: {
@@ -78,8 +79,9 @@ export default class InternForm extends Vue {
       startDate: new Date(),
       endDate: new Date(),
       division: 1,
+      responsable: "",
     },
-    documents: [],
+    documents: [0, 0, 0, 0, 0, 0],
   };
   async created() {
     this.uiModule = getModule(Ui, store);
@@ -101,6 +103,7 @@ export default class InternForm extends Vue {
           startDate: currentIntern.startDate,
           endDate: currentIntern.endDate,
           division: currentIntern.divisionId,
+          responsable: currentIntern.responsable,
         },
         documents: currentIntern.documents,
       };
@@ -113,6 +116,38 @@ export default class InternForm extends Vue {
         this.departments = this.uiModule.departments!!;
         this.departmentsLoading = false;
       });
+  }
+  submitIntern() {
+    this.saving = true;
+    if (this.$route.params.id) {
+      // TODO: PUT edit Intern
+    } else {
+      this.$axios
+        .$post(process.env.BASE_URL + "/interns", {
+          gender: this.intern.info.gender,
+          firstName: this.intern.info.firstName,
+          lastName: this.intern.info.lastName,
+          email: this.intern.info.email,
+          phone: this.intern.info.phone,
+          startDate: this.intern.internship.startDate,
+          endDate: this.intern.internship.endDate,
+          divisionId: this.intern.internship.division,
+          responsable: this.intern.internship.responsable,
+          documents: this.intern.documents,
+        })
+        .catch((err) => {
+          console.log(err);
+          this.$buefy.toast.open({
+            message: "Le sauvegarde du stagiaire a échoué",
+            type: "is-danger",
+            position: "is-bottom-right",
+          });
+        })
+        .finally(() => {
+          this.saving = false;
+          this.$buefy.toast.open("Les informations sont enregistrées");
+        });
+    }
   }
   monthDiff(start: Date, end: Date) {
     var time = end.getTime() - start.getTime();
@@ -140,14 +175,10 @@ export default class InternForm extends Vue {
         Dialog.confirm({
           title: "Confirmation",
           message: "Êtes-vous sûre des informations saisis?",
-          onConfirm: () =>
-            this.$buefy.toast.open("Les informations sont enregistrer"),
+          onConfirm: () => this.submitIntern(),
           // TODO: Launch the Save process step
         });
       } else {
-        // if (!this.internshipValidator.dates.state) {
-        //   message += this.internshipValidator.dates.message + "<br/>";
-        // }
         Dialog.alert({
           title: "Alertes",
           message: "Il y a des erreurs dans votre formulaire!",
@@ -174,6 +205,9 @@ export default class InternForm extends Vue {
   }
   get divisionValid() {
     return this.intern.internship.division !== 0;
+  }
+  get responsableValid() {
+    return this.intern.internship.responsable.length > 5;
   }
   get documentsValid() {
     if (this.conventionVisible) {
@@ -221,6 +255,10 @@ export default class InternForm extends Vue {
       division: {
         state: this.divisionValid,
         message: "Une Entité doit être sélectionnée",
+      },
+      responsable: {
+        state: this.responsableValid,
+        message: "Un Reponsable doît accorder ce stage",
       },
     };
   }

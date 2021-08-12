@@ -33,6 +33,25 @@
       ></b-datepicker>
     </b-field>
     <b-field
+      class="responsable"
+      label="Responsable"
+      :type="
+        changedState.responsable ? getValidatorType(validators.responsable) : ''
+      "
+      :message="
+        changedState.responsable
+          ? getValidatorMessage(validators.responsable)
+          : ''
+      "
+    >
+      <b-input
+        v-model="internship.responsable"
+        size="is-medium"
+        expanded
+        @blur="changedState.responsable = true"
+      ></b-input>
+    </b-field>
+    <b-field
       class="department"
       label="Entité"
       :type="changedState.division ? getValidatorType(validators.division) : ''"
@@ -47,6 +66,7 @@
         :validation-message="getValidatorMessage(validators.division)"
         :loading="departmentsLoading"
         v-if="departments"
+        expanded
       >
         <optgroup
           v-for="department in departments"
@@ -116,7 +136,7 @@ export default class InternshipInfoForm extends Vue {
   grid-template-rows: 1fr 1fr;
   grid-template-areas:
     "start-date end-date"
-    "department department";
+    "responsable department";
 }
 .start-date {
   grid-area: start-date;
@@ -126,6 +146,8 @@ export default class InternshipInfoForm extends Vue {
 }
 .department {
   grid-area: department;
-  justify-self: center;
+}
+.responsable {
+  grid-area: responsable;
 }
 </style>

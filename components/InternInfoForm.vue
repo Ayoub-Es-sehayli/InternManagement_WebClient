@@ -1,8 +1,8 @@
 <template>
   <div class="grid-view">
     <b-field label="Sexe" class="gender">
-      <b-radio v-model="info.gender" :native-value="0">Homme</b-radio>
-      <b-radio v-model="info.gender" :native-value="1">Femme</b-radio>
+      <b-radio v-model="info.gender" :native-value="1">Homme</b-radio>
+      <b-radio v-model="info.gender" :native-value="2">Femme</b-radio>
     </b-field>
     <b-field
       label="Nom"
@@ -91,7 +91,7 @@ export default class InternInfoForm extends Vue {
     lastName: false,
     firstName: false,
     email: false,
-    phone: false
+    phone: false,
   };
 
   get NamePrefix() {

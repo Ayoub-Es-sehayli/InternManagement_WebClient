@@ -11,6 +11,7 @@ type Intern = {
   startDate: Date,
   endDate: Date,
   divisionId: number,
+  responsable: string,
   documents: eDocumentState[]
 };
 

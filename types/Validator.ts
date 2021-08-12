@@ -13,6 +13,7 @@ export type InfoValidators = {
 export type InternshipValidators = {
   dates: Validator;
   division: Validator;
+  responsable: Validator;
 };
 export type AuthenticateValidators = {
   email: Validator;
