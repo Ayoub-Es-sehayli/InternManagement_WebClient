@@ -57,6 +57,13 @@ export default class InternModule extends VuexModule {
         departement: 'RH',
         fullName: 'Mohamed Hariss',
         state: eInternState.ApplicationFilled
+      },
+      {
+        id: 2,
+        codeDecision: '1190/2020',
+        departement: 'RH',
+        fullName: 'Mohamed Hariss',
+        state: eInternState.ApplicationFilled
       }
     ]
     this.context.commit('SetInterns', interns)
