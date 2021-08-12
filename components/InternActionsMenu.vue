@@ -28,7 +28,7 @@
       aria-modal
     >
       <template #default="props">
-        <PrintForm @close="props.close" />
+        <PrintForm @close="props.close" :id="idIntern" />
       </template>
     </b-modal>
     <b-modal

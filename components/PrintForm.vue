@@ -34,27 +34,35 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import { eDocuments } from "@/types/eDocuments";
 import printJS from "print-js";
 const jade = require("jade");
 @Component
 export default class PrintForm extends Vue {
+  @Prop()
+  id!: number;
   selection: eDocuments = eDocuments.Decision;
   printLoading: boolean = false;
   public printDocument() {
+    const options = {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+    };
     this.printLoading = true;
     switch (this.selection) {
       case eDocuments.Decision:
         this.$axios
-          .$get(process.env.BASE_URL + "/print/decision/1")
+          .$get(process.env.BASE_URL + "/print/decision/" + this.id)
           .then((data) => {
             let html = jade.render(data.template, {
-              currentYear: 2021,
-              fullname: "ahmed tazi",
-              division: "Departement SI",
-              startDate: "06/05/2021",
-              endDate: "06/07/2021",
+              currentYear: data.currentYear,
+              fullname: data.fullName,
+              responsable: data.responsable,
+              department: data.department,
+              startDate: new Date(data.startDate).toLocaleDateString("fr-FR"),
+              endDate: new Date(data.endDate).toLocaleDateString("fr-FR"),
             });
             printJS({ printable: html, type: "raw-html" });
           })
@@ -66,14 +74,14 @@ export default class PrintForm extends Vue {
 
       case eDocuments.Attestation:
         this.$axios
-          .$get(process.env.BASE_URL + "/print/attestation/1")
+          .$get(process.env.BASE_URL + "/print/attestation/" + this.id)
           .then((data) => {
             let html = jade.render(data.template, {
-              currentYear: 2021,
-              fullname: "ahmed tazi",
-              location: "al omrane rsk",
-              startDate: "06/05/2021",
-              endDate: "06/07/2021",
+              currentYear: data.currentYear,
+              fullname: data.fullName,
+              location: data.location,
+              startDate: new Date(data.startDate).toLocaleDateString("fr-FR"),
+              endDate: new Date(data.endDate).toLocaleDateString("fr-FR"),
             });
             printJS({ printable: html, type: "raw-html" });
           })
@@ -84,16 +92,21 @@ export default class PrintForm extends Vue {
         break;
       case eDocuments.Annulation:
         this.$axios
-          .$get(process.env.BASE_URL + "/print/annulation/1")
+          .$get(process.env.BASE_URL + "/print/annulation/" + this.id)
           .then((data) => {
             let html = jade.render(data.template, {
-              currentYear: 2021,
-              decisionDate: "06/08/2021",
-              fullname: "ahmed tazi",
-              direction: "Rh",
-              startDate: "06/05/2021",
-              endDate: "06/07/2021",
-              annulationDate: "01/06/2021",
+              currentYear: data.currentYear,
+              decisionDate: new Date(data.decisionDate).toLocaleDateString(
+                "fr-FR"
+              ),
+              decisionCode: data.decisionCode,
+              fullname: data.fullName,
+              department: data.department,
+              startDate: new Date(data.startDate).toLocaleDateString("fr-FR"),
+              endDate: new Date(data.endDate).toLocaleDateString("fr-FR"),
+              annulationDate: new Date(data.annulationDate).toLocaleDateString(
+                "fr-FR"
+              ),
             });
             printJS({ printable: html, type: "raw-html" });
           })
