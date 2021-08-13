@@ -115,7 +115,7 @@ export default class DocumentForm extends Vue {
       .catch((err) => {
         console.log(err);
         this.$buefy.toast.open({
-          message: "Le sauvegarde du stagiaire a échoué",
+          message: "Le sauvegarde du document a échoué",
           type: "is-danger",
           position: "is-bottom-right",
         });
