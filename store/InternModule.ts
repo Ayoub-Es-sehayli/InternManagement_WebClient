@@ -28,41 +28,25 @@ export default class InternModule extends VuexModule {
     this.interns!![intern.id] = intern;
   }
   @Action
-  LoadIntern(id: number) {
-    const intern: Intern = {
-      id: 1,
-      gender: eGender.Male,
-      firstName: "Ahmed",
-      lastName: "Tazi",
-      email: "Ahmed.tazi@gmail.com",
-      phone: "0666666666",
-      startDate: new Date("7/1/2021"),
-      endDate: new Date("8/10/2021"),
-      divisionId: 1,
-      documents: [
-        eDocumentState.Submitted,
-        eDocumentState.Submitted,
-        eDocumentState.Missing,
-        eDocumentState.Missing,
-        eDocumentState.Valid,
-        eDocumentState.Submitted
-      ]
-    }
+  LoadIntern(intern:Intern) {
     this.context.commit('SetCurrentIntern', intern)
-  }
-
-  @Action
-  async LoadAllInterns() {
-    const interns: InternListItem[] = [
-      {
-        id: 1,
-        codeDecision: '1190/2020',
-        departement: 'RH',
-        fullName: 'Mohamed Hariss',
-        state: eInternState.ApplicationFilled
-      }
-    ]
-    this.context.commit('SetInterns', interns)
+    return {
+      id: intern.id,
+      info: {
+        gender: intern.gender,
+        firstName: intern.firstName,
+        lastName: intern.lastName,
+        email: intern.email,
+        phone: intern.phone,
+      },
+      internship: {
+        startDate: intern.startDate,
+        endDate: intern.endDate,
+        division: intern.divisionId,
+        responsable: intern.responsable,
+      },
+      documents: intern.documents,
+    };
   }
 
 }
