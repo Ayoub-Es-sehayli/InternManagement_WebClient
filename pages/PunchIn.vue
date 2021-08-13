@@ -7,13 +7,14 @@
       <b-autocomplete
         :data="interns"
         field="name"
-        v-model="punchInData.intern.name"
-        @select="option => (punchInData.intern = option)"
+        v-model="punchInData.fullName"
+        @select="(option) => (punchInData.internId = option ? option.Id : -1)"
         expanded
         size="is-medium"
         icon="magnify"
         placeholder="Nom Stagiaire"
         clearable
+        :loading="internsLoading"
       >
       </b-autocomplete>
     </div>
@@ -26,7 +27,7 @@
       hours-label="Heures"
       minutes-label="Min"
       class="time"
-      v-model="punchInData.time"
+      v-model="punchInData.dateTime"
     ></b-clockpicker>
     <b-button class="in" size="is-large" @click="showEnteredDialog()"
       >Entrée</b-button
@@ -43,53 +44,58 @@ import { DialogProgrammatic as Dialog } from "buefy";
 import { getModule } from "vuex-module-decorators";
 import { store } from "~/store";
 import Ui from "~/store/ui";
-type Intern = {
-  id: number;
-  name: String;
-  present: boolean;
-  left: boolean;
-};
+import Attendance from "~/store/AttendanceModule";
+import AttendanceItem from "@/types/AttendanceItem";
+import eAttendanceType from "~/types/eAttendanceType";
 
-type PunchInData = {
-  intern: Intern;
-  time: Date;
+type FormData = {
+  internId: number;
+  fullName: string;
+  dateTime: Date;
 };
 @Component
 export default class PunchIn extends Vue {
   uiModule!: Ui;
+  attendanceModule!: Attendance;
   searchValue: String = "";
-  interns: Intern[] = [];
+  interns: AttendanceItem[] = [];
+  internsLoading: boolean = true;
   minTime: Date = new Date();
   maxTime: Date = new Date();
-  punchInData: PunchInData = {
-    intern: { id: -1, name: "", present: false, left: false },
-    time: new Date()
+  punchInData: FormData = {
+    internId: -1,
+    fullName: "",
+    dateTime: new Date(),
   };
   created() {
     this.uiModule = getModule(Ui, store);
+    this.attendanceModule = getModule(Attendance, store);
     this.uiModule.setTitle("Pointage");
+
     this.minTime.setHours(8);
     this.minTime.setMinutes(0);
     this.maxTime.setHours(18);
     this.maxTime.setMinutes(0);
-    this.interns = [
-      {
-        id: 10,
-        name: "Mohamed Hariss",
-        present: false,
-        left: false
-      }
-    ];
+
+    this.$axios
+      .$get(process.env.BASE_URL + "/attendance")
+      .then((data: AttendanceItem[]) => {
+        this.attendanceModule.setInterns(data);
+        this.interns = this.attendanceModule.interns!!;
+        this.internsLoading = false;
+      });
   }
   get countAbsent() {
-    return this.interns.filter(intern => !intern.present).length;
+    return this.interns.filter(
+      (intern) => intern.type == eAttendanceType.Absent
+    ).length;
   }
   showEnteredDialog() {
     Dialog.confirm({
       title: "Confirmation",
       message: "Êtes-vous sûre des informations saisis?",
       type: "is-success",
-      onConfirm: () => this.markEntered()
+      onConfirm: () => this.markEntered(),
     });
   }
   showLeftDialog() {
@@ -97,34 +103,31 @@ export default class PunchIn extends Vue {
       title: "Confirmation",
       message: "Êtes-vous sûre des informations saisis?",
       type: "is-warning",
-      onConfirm: () => this.markLeft()
+      onConfirm: () => this.markLeft(),
     });
   }
   findInternIndex() {
     return this.interns.findIndex(
-      intern => intern.id == this.punchInData.intern.id
+      (intern) => intern.internId == this.punchInData.internId
     );
   }
   markEntered() {
-    if (!this.interns[this.findInternIndex()].present) {
-      this.interns[this.findInternIndex()].present = true;
+    if (this.interns[this.findInternIndex()].type == eAttendanceType.Absent) {
+      this.interns[this.findInternIndex()].type = eAttendanceType.Enter;
     } else {
       Dialog.alert({
         title: "Alerte",
-        message: "Ce Stagiaire est présent déjà!"
+        message: "Ce Stagiaire est présent déjà!",
       });
     }
   }
   markLeft() {
-    if (
-      this.interns[this.findInternIndex()].present &&
-      !this.interns[this.findInternIndex()].left
-    ) {
-      this.interns[this.findInternIndex()].left = true;
+    if (this.interns[this.findInternIndex()].type == eAttendanceType.Enter) {
+      this.interns[this.findInternIndex()].type != eAttendanceType.Exit;
     } else {
       Dialog.alert({
         title: "Alerte",
-        message: "Ce Stagiaire n'est pas présent!"
+        message: "Ce Stagiaire n'est pas présent!",
       });
     }
   }

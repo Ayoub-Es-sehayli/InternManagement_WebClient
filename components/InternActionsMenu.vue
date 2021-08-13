@@ -41,7 +41,11 @@
       aria-modal
     >
       <template #default="props">
-        <DocumentForm @close="props.close" />
+        <DocumentForm
+          @close="props.close"
+          :id="idIntern"
+          @changed="handleDocumentModalChanged()"
+        />
       </template>
     </b-modal>
   </div>
@@ -66,6 +70,10 @@ export default class ContextDropdown extends Vue {
 
   showDocumentModal() {
     this.documentModalVisible = !this.documentModalVisible;
+  }
+  handleDocumentModalChanged() {
+    this.$emit("changed");
+    this.documentModalVisible = false;
   }
 }
 </script>

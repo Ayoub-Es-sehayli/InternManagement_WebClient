@@ -4,6 +4,5 @@ export enum eInternState {
   Started,
   Finished,
   FileClosed,
-  IncompleteFile,
   Cancelled
 }

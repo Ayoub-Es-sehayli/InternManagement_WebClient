@@ -1,11 +1,15 @@
+import eAttendanceAlarmState from "./eAttendanceAlarmState";
+import eFileAlarmState from "./eFileAlarmState";
 import { eInternState } from "./eInternState";
 
 type InternListItem = {
   id: number,
   fullName: string,
-  codeDecision: string,
-  departement: string,
-  state: eInternState
+  decision: string,
+  division: string,
+  state: eInternState,
+  fileAlert: eFileAlarmState,
+  absenceAlert: eAttendanceAlarmState
 }
 
 export default InternListItem;

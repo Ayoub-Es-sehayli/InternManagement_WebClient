@@ -10,7 +10,8 @@ type Intern = {
   phone: string,
   startDate: Date,
   endDate: Date,
-  department: number,
+  divisionId: number,
+  responsable: string,
   documents: eDocumentState[]
 };
 

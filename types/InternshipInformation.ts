@@ -1,6 +1,7 @@
 type InternshipInformation = {
   startDate: Date;
   endDate: Date;
-  department: number;
+  division: number;
+  responsable: string;
 };
 export default InternshipInformation;

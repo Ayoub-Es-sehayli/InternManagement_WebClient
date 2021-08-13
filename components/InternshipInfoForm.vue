@@ -33,24 +33,54 @@
       ></b-datepicker>
     </b-field>
     <b-field
-      class="department"
-      label="Entité"
+      class="responsable"
+      label="Responsable"
       :type="
-        changedState.department ? getValidatorType(validators.department) : ''
+        changedState.responsable ? getValidatorType(validators.responsable) : ''
       "
       :message="
-        changedState.department
-          ? getValidatorMessage(validators.department)
+        changedState.responsable
+          ? getValidatorMessage(validators.responsable)
           : ''
+      "
+    >
+      <b-input
+        v-model="internship.responsable"
+        size="is-medium"
+        expanded
+        @blur="changedState.responsable = true"
+      ></b-input>
+    </b-field>
+    <b-field
+      class="department"
+      label="Entité"
+      :type="changedState.division ? getValidatorType(validators.division) : ''"
+      :message="
+        changedState.division ? getValidatorMessage(validators.division) : ''
       "
     >
       <b-select
         size="is-medium"
-        v-model="internship.department"
-        @blur="changedState.department = true"
-        :validation-message="getValidatorMessage(validators.department)"
+        v-model="internship.division"
+        @blur="changedState.division = true"
+        :validation-message="getValidatorMessage(validators.division)"
+        :loading="departmentsLoading"
+        v-if="departments"
+        expanded
       >
-        <option>Direction Organisation et Capital Humain</option>
+        <optgroup
+          v-for="department in departments"
+          :key="department.id"
+          :label="department.name"
+        >
+          <option
+            v-for="division in department.divisions"
+            :key="division.id"
+            :value="division.id"
+          >
+            {{ division.name }}
+          </option>
+        </optgroup>
       </b-select>
     </b-field>
   </div>
@@ -59,10 +89,11 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 import InternshipInformation from "~/types/InternshipInformation";
 import Validator, { InternshipValidators } from "~/types/Validator";
+import Department from "@/types/Department";
 type ChangedState = {
   startDate: boolean;
   endDate: boolean;
-  department: boolean;
+  division: boolean;
 };
 @Component
 export default class InternshipInfoForm extends Vue {
@@ -72,10 +103,16 @@ export default class InternshipInfoForm extends Vue {
   @Prop()
   validators!: InternshipValidators;
 
+  @Prop()
+  departments!: Department[];
+
+  @Prop()
+  departmentsLoading!: boolean;
+
   changedState: ChangedState = {
     startDate: false,
     endDate: false,
-    department: false
+    division: false,
   };
   getValidatorType(validator: Validator) {
     if (!validator.state) {
@@ -99,7 +136,7 @@ export default class InternshipInfoForm extends Vue {
   grid-template-rows: 1fr 1fr;
   grid-template-areas:
     "start-date end-date"
-    "department department";
+    "responsable department";
 }
 .start-date {
   grid-area: start-date;
@@ -109,6 +146,8 @@ export default class InternshipInfoForm extends Vue {
 }
 .department {
   grid-area: department;
-  justify-self: center;
+}
+.responsable {
+  grid-area: responsable;
 }
 </style>
