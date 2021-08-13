@@ -5,15 +5,23 @@
       <button type="button" class="delete" @click="$emit('close')" />
     </header>
     <section class="modal-card-body">
-      <b-radio v-model="selection" :native-value="0" name="document"
-        >Decision</b-radio
-      >
-      <b-radio v-model="selection" :native-value="1" name="document"
-        >Attestation</b-radio
-      >
-      <b-radio v-model="selection" :native-value="2" name="document"
-        >Annulation</b-radio
-      >
+      <div>
+        <b-radio v-model="selection" :native-value="0" name="document"
+          >Decision</b-radio
+        >
+        <b-radio v-model="selection" :native-value="1" name="document"
+          >Attestation</b-radio
+        >
+        <b-radio v-model="selection" :native-value="2" name="document"
+          >Annulation</b-radio
+        >
+      </div>
+      <div v-if="selection === 2">
+        <strong>Raisons: </strong><br />
+        <b-checkbox v-model="reasons[0]">Absence Excessive</b-checkbox>
+        <br />
+        <b-checkbox v-model="reasons[1]">Appel d'annulation</b-checkbox>
+      </div>
     </section>
     <footer class="modal-card-foot modal-actions">
       <b-button
@@ -43,6 +51,7 @@ export default class PrintForm extends Vue {
   @Prop()
   id!: number;
   selection: eDocuments = eDocuments.Decision;
+  reasons: boolean[] = [false, false];
   printLoading: boolean = false;
   public printDocument() {
     const options = {
@@ -64,7 +73,12 @@ export default class PrintForm extends Vue {
               startDate: new Date(data.startDate).toLocaleDateString("fr-FR"),
               endDate: new Date(data.endDate).toLocaleDateString("fr-FR"),
             });
-            printJS({ printable: html, type: "raw-html" });
+            printJS({
+              printable: html,
+              type: "raw-html",
+              style:
+                "body {font-family: 'Bookman Old Style', arial; font-size: 10pt;}",
+            });
           })
           .catch((error) => console.log(error))
           .finally(() => {
@@ -83,7 +97,12 @@ export default class PrintForm extends Vue {
               startDate: new Date(data.startDate).toLocaleDateString("fr-FR"),
               endDate: new Date(data.endDate).toLocaleDateString("fr-FR"),
             });
-            printJS({ printable: html, type: "raw-html" });
+            printJS({
+              printable: html,
+              type: "raw-html",
+              style:
+                "body {font-family: 'Bookman Old Style', arial; font-size: 10pt;}",
+            });
           })
           .catch((error) => console.log(error))
           .finally(() => {
@@ -92,7 +111,12 @@ export default class PrintForm extends Vue {
         break;
       case eDocuments.Annulation:
         this.$axios
-          .$get(process.env.BASE_URL + "/print/annulation/" + this.id)
+          .$get(process.env.BASE_URL + "/print/annulation/" + this.id, {
+            params: {
+              absence: this.reasons[0],
+              contact: this.reasons[1],
+            },
+          })
           .then((data) => {
             let html = jade.render(data.template, {
               currentYear: data.currentYear,
@@ -107,8 +131,15 @@ export default class PrintForm extends Vue {
               annulationDate: new Date(data.annulationDate).toLocaleDateString(
                 "fr-FR"
               ),
+              internContact: data.contact,
+              absenceReason: data.absence,
             });
-            printJS({ printable: html, type: "raw-html" });
+            printJS({
+              printable: html,
+              type: "raw-html",
+              style:
+                "body {font-family: 'Bookman Old Style', arial; font-size: 10pt;}",
+            });
           })
           .catch((error) => console.log(error))
           .finally(() => {
