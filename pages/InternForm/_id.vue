@@ -88,7 +88,7 @@ export default class InternForm extends Vue {
     this.uiModule.setTitle("Fiche de Stagiaire");
     this.internModule = getModule(InternModule, store);
     if (this.$route.params.id) {
-      await this.internModule.LoadIntern(parseInt(this.$route.params.id));
+      // await this.internModule.LoadIntern(sparseInt(this.$route.params.id));
       const currentIntern = this.internModule.currentIntern!!;
       this.intern = {
         id: currentIntern.id,
