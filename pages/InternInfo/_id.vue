@@ -1,58 +1,83 @@
 <template>
   <div class="info-grid">
     <div class="decision">
-      <b-icon icon="paperclip"></b-icon> <strong>DOCH/DtRH</strong>
-      {{ intern.codeDecision }}
+      <div v-if="!internLoading">
+        <b-icon icon="paperclip"></b-icon> <strong>DOCH/DtRH</strong
+        >{{ intern.codeDecision }}
+      </div>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
     <div class="date">
-      <b-icon icon="calendar-text"></b-icon>
-      <strong>De</strong> {{ intern.startDate.toLocaleDateString("fr-FR") }}
-      <strong>à</strong>
-      {{ intern.endDate.toLocaleDateString("fr-FR") }}<br />
-      ({{ monthDiff(intern.startDate, intern.endDate) }} mois)
+      <div v-if="!internLoading">
+        <b-icon icon="calendar-text"></b-icon>
+        <strong>De</strong> {{ intern.startDate.toLocaleDateString("fr-FR") }}
+        <strong>à</strong>
+        {{ intern.endDate.toLocaleDateString("fr-FR") }}<br />
+        ({{ monthDiff(intern.startDate, intern.endDate) }} mois)
+      </div>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
     <div class="department">
-      <b-icon icon="domain"></b-icon> {{ intern.department }}
+      <div v-if="!internLoading">
+        <b-icon icon="domain"></b-icon> {{ intern.department }}
+      </div>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
     <div class="contact-info">
-      {{ intern.email }}<br />
-      {{ intern.phone }}
+      <div v-if="!internLoading">
+        {{ intern.email }}<br />
+        {{ intern.phone }}
+      </div>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
     <div class="state">
-      <b-icon icon="account-box-outline"></b-icon
-      >{{ uiModule.internStates[intern.state - 1] }}
+      <div v-if="!internLoading">
+        <b-icon icon="account-box-outline"></b-icon
+        >{{ uiModule.internStates[intern.state - 1] }}
+      </div>
     </div>
     <div class="dossier"><b-icon icon="inbox-multiple"></b-icon>Dossier</div>
     <div class="actions">
       <InternActionsMenu btn-text="Options" :id-intern="intern.id" />
     </div>
     <div>
-      <b-datepicker
-        :events="intern.absentDays"
-        :min-date="intern.startDate"
-        :max-date="intern.endDate"
-      >
-        <template #trigger>
-          <b-button expanded class="absence-info"
-            >Absenté {{ intern.absentDays.length }} jours</b-button
-          >
-        </template>
-      </b-datepicker>
+      <div v-if="!internLoading">
+        <b-datepicker
+          :events="intern.absentDays"
+          :min-date="intern.startDate"
+          :max-date="intern.endDate"
+        >
+          <template #trigger>
+            <b-button expanded class="absence-info"
+              >Absenté {{ intern.absentDays.length }} jours</b-button
+            >
+          </template>
+        </b-datepicker>
+      </div>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
     <div class="documents">
-      <b-tooltip
-        v-for="(document, index) in getInternDocumentList()"
-        :key="document"
-        :label="getDocumentTooltipLabel(intern.documents[index])"
-      >
-        <b-button
-          expanded
-          rounded
-          :class="getDocumentClass(intern.documents[index])"
+      <div v-if="!internLoading">
+        <b-tooltip
+          v-for="(document, index) in getInternDocumentList()"
+          :key="document"
+          :label="getDocumentTooltipLabel(intern.documents[index])"
         >
-          {{ document }}
-        </b-button>
-      </b-tooltip>
+          <b-button
+            expanded
+            rounded
+            :class="getDocumentClass(intern.documents[index])"
+          >
+            {{ document }}
+          </b-button>
+        </b-tooltip>
+      </div>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
+      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
     <b-button class="proceed-btn" @click="showEndModal()" expanded
       >Procèder à Fin de stage</b-button
@@ -77,6 +102,7 @@
 import { Vue, Component } from "vue-property-decorator";
 import { getModule } from "vuex-module-decorators";
 import Ui from "@/store/ui";
+import InternModule from "@/store/InternModule";
 import { store } from "@/store/index";
 import { eDocumentState } from "@/types/eDocumentState";
 import { eInternState } from "@/types/eInternState";
@@ -104,33 +130,32 @@ type Intern = {
 export default class InternInfo extends Vue {
   uiModule!: Ui;
   intern: Intern = {
-    id: 1,
-    codeDecision: "1190/2021",
-    department: "Direction Organisation et Capital Humain",
-    fullName: "Mohamed Hariss",
-    email: "mohamed.hariss@gmail.com",
-    phone: "0670088893",
-    startDate: new Date("7/1/2021"),
-    endDate: new Date("8/10/2021"),
+    id: -1,
+    codeDecision: "",
+    department: "",
+    fullName: "",
+    email: "",
+    phone: "",
+    startDate: new Date(),
+    endDate: new Date(),
     documents: [
-      eDocumentState.Submitted,
-      eDocumentState.Submitted,
       eDocumentState.Missing,
-      eDocumentState.Invalid,
+      eDocumentState.Missing,
+      eDocumentState.Missing,
+      eDocumentState.Missing,
       eDocumentState.Missing,
     ],
-    absentDays: [
-      { date: new Date("7/7/2021"), type: "is-danger" },
-      { date: new Date("7/12/2021"), type: "is-danger" },
-      { date: new Date("7/22/2021"), type: "is-danger" },
-    ],
-    state: eInternState.Started,
+    absentDays: [],
+    state: eInternState.ApplicationFilled,
   };
   endModalVisible: boolean = false;
+  internLoading: boolean = true;
 
   created() {
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle(this.intern.fullName);
+    if (this.$route.params.id) {
+    }
   }
 
   getDocumentClass(documentState: eDocumentState) {
