@@ -24,9 +24,31 @@
         searchable
         >{{ props.row.fullName }}</b-table-column
       >
-      <b-table-column field="division" label="Entité" v-slot="props" sortable>{{
-        props.row.division
-      }}</b-table-column>
+      <b-table-column field="division" label="Entité" sortable searchable
+        ><template v-slot="props">{{ props.row.division }}</template>
+        <template #searchable="props">
+          <b-select
+            v-model="props.filters[props.column.field]"
+            :loading="departmentsLoading"
+            v-if="departments"
+          >
+            <option value="">Tous les Départments</option>
+            <optgroup
+              v-for="department in departments"
+              :key="department.id"
+              :label="department.name"
+            >
+              <option
+                v-for="division in department.divisions"
+                :key="division.id"
+                :value="division.id"
+              >
+                {{ division.name }}
+              </option>
+            </optgroup>
+          </b-select>
+        </template></b-table-column
+      >
       <b-table-column field="state" label="État" searchable>
         <template v-slot="props"
           >{{ internStates[props.row.state - 1] }}
@@ -73,6 +95,7 @@ import Ui from "@/store/ui";
 import InternModule from "@/store/InternModule";
 import { eInternState } from "@/types/eInternState";
 import InternListItem from "@/types/InternListItem";
+import Department from "~/types/Department";
 
 @Component({
   name: "interns",
@@ -85,6 +108,9 @@ export default class Interns extends Vue {
   internStates: String[] = [];
   internsLoading: boolean = true;
 
+  departments: Department[] = [];
+  departmentsLoading: boolean = true;
+
   public async created() {
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle("Liste des Stagiaires");
@@ -92,7 +118,17 @@ export default class Interns extends Vue {
 
     this.internModule = getModule(InternModule, store);
 
+    this.LoadDepartments();
     this.LoadInterns();
+  }
+  LoadDepartments() {
+    this.$axios
+      .$get(process.env.BASE_URL + "/ui/divisions")
+      .then((data: Department[]) => {
+        this.uiModule.setDepartments(data);
+        this.departments = this.uiModule.departments!!;
+        this.departmentsLoading = false;
+      });
   }
   LoadInterns() {
     this.internsLoading = true;
