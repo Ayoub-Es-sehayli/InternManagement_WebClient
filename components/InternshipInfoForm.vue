@@ -136,7 +136,7 @@ export default class InternshipInfoForm extends Vue {
   grid-template-rows: 1fr 1fr;
   grid-template-areas:
     "start-date end-date"
-    "responsable department";
+    "department responsable";
 }
 .start-date {
   grid-area: start-date;
