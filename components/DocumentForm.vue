@@ -56,6 +56,7 @@
         label="Sauvegarder"
         class="save-btn"
         @click="saveDocument()"
+        :loading="saving"
       />
     </footer>
   </form>
@@ -74,7 +75,6 @@ export default class DocumentForm extends Vue {
   internModule!: InternModule;
   @Prop()
   id!: number;
-  selection: eDocuments = eDocuments.Decision;
 
   document: DocumentViewModel = {
     type: eDocuments.Decision,
@@ -89,7 +89,7 @@ export default class DocumentForm extends Vue {
   saveDocument() {
     this.saving = true;
     let documentType = "decision";
-    switch (this.selection) {
+    switch (this.document.type) {
       case eDocuments.Decision:
         documentType = "decision";
         break;
@@ -111,6 +111,7 @@ export default class DocumentForm extends Vue {
       )
       .then((_) => {
         this.$emit("changed");
+        this.$buefy.toast.open("Les informations sont enregistrées");
       })
       .catch((err) => {
         console.log(err);
@@ -122,7 +123,6 @@ export default class DocumentForm extends Vue {
       })
       .finally(() => {
         this.saving = false;
-        this.$buefy.toast.open("Les informations sont enregistrées");
       });
   }
 
