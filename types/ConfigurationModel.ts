@@ -1,6 +1,6 @@
 type ConfigurationModel ={
-    internsNumber : number;
-    daysAbsence : number;
+    nInterns: number;
+    nAttendanceDays: number;
 }
 
 export default ConfigurationModel 

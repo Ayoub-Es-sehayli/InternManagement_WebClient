@@ -2,7 +2,7 @@
   <section class="form">
     <b-field label="Nombre de Stagiaires par unité">
       <b-numberinput
-        v-model="configurationModel.internsNumber"
+        v-model="configurationModel.nInterns"
         placeholder="1"
         :min="1"
         :editable="false"
@@ -13,7 +13,7 @@
     </b-field>
     <b-field label="Jours d'absence par semaine">
       <b-numberinput
-        v-model="configurationModel.daysAbsence"
+        v-model="configurationModel.nAttendanceDays"
         placeholder="1"
         :min="1"
         :max="5"
@@ -36,6 +36,7 @@
         class="sauvegarder"
         size="is-medium"
         @click="SaveConfiguration()"
+        :loading="saving"
         >Sauvegarder</b-button
       >
     </b-field>
@@ -55,18 +56,31 @@ export default class Option extends Vue {
   uiModule!: Ui;
   configurationModule!: Configuration;
   configurationModel: ConfigurationModel = {
-    internsNumber: 10,
-    daysAbsence: 4,
+    nInterns: 10,
+    nAttendanceDays: 4,
   };
+  saving: boolean = false;
   async created() {
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle("Paramètres");
     this.configurationModule = getModule(Configuration, store);
-    await this.configurationModule.LoadConfiguration();
-    this.configurationModel = this.configurationModule.configurationModel!!;
+    this.$axios
+      .$get(process.env.BASE_URL + "/preferences")
+      .then((data: ConfigurationModel) => {
+        this.configurationModel = data;
+        this.configurationModule.SetConfiguration(data);
+        this.configurationModel = this.configurationModule.configurationModel!!;
+      });
   }
   SaveConfiguration() {
-    this.configurationModule.SaveConfiguration(this.configurationModel!!);
+    this.saving = true;
+    this.$axios
+      .$put(process.env.BASE_URL + "/preferences", this.configurationModel)
+      .then(() => {})
+      .catch((err) => console.log(err))
+      .finally(() => {
+        this.saving = false;
+      });
   }
 }
 </script>
