@@ -5,21 +5,28 @@
         <b-button type="is-warning">{{ btnText }}</b-button>
       </template>
 
-      <b-dropdown-item aria-role="listitem" @click="showPrintModal"
+      <b-dropdown-item
+        aria-role="listitem"
+        @click="showPrintModal"
+        :disabled="!isEditable"
         >Imprimer</b-dropdown-item
       >
-      <b-dropdown-item aria-role="listitem" @click="showDocumentModal"
+      <b-dropdown-item
+        aria-role="listitem"
+        @click="showDocumentModal"
+        :disabled="!isEditable"
         >Remplir Document</b-dropdown-item
       >
       <b-dropdown-item aria-role="listitem"
         >Reclamer au Staigaire</b-dropdown-item
       >
-      <b-dropdown-item aria-role="listitem"
+      <b-dropdown-item aria-role="listitem" :disabled="!isEditable"
         >Modifier ce stagiaire</b-dropdown-item
       >
     </b-dropdown>
     <b-modal
       v-model="printModalVisible"
+      :state="state"
       has-modal-card
       trap-focus
       :destroy-on-hide="false"
@@ -28,11 +35,12 @@
       aria-modal
     >
       <template #default="props">
-        <PrintForm @close="props.close" :id="idIntern" />
+        <PrintForm @close="props.close" :id="idIntern" :state="state" />
       </template>
     </b-modal>
     <b-modal
       v-model="documentModalVisible"
+      :state="state"
       has-modal-card
       trap-focus
       :destroy-on-hide="false"
@@ -45,6 +53,7 @@
           @close="props.close"
           :id="idIntern"
           @changed="handleDocumentModalChanged()"
+          :state="state"
         />
       </template>
     </b-modal>
@@ -52,6 +61,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
+import { eInternState } from "~/types/eInternState";
 
 @Component
 export default class ContextDropdown extends Vue {
@@ -60,6 +70,9 @@ export default class ContextDropdown extends Vue {
 
   @Prop()
   btnText!: string;
+
+  @Prop()
+  state!: eInternState;
 
   printModalVisible: boolean = false;
   documentModalVisible: boolean = false;
@@ -74,6 +87,17 @@ export default class ContextDropdown extends Vue {
   handleDocumentModalChanged() {
     this.$emit("changed");
     this.documentModalVisible = false;
+  }
+
+  get isEditable(): boolean {
+    switch (this.state) {
+      case eInternState.FileClosed:
+      case eInternState.Cancelled:
+        return false;
+
+      default:
+        return true;
+    }
   }
 }
 </script>

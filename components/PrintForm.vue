@@ -6,13 +6,25 @@
     </header>
     <section class="modal-card-body">
       <div>
-        <b-radio v-model="selection" :native-value="0" name="document"
+        <b-radio
+          v-model="selection"
+          :native-value="0"
+          name="document"
+          :disabled="!canPrintDecision"
           >Decision</b-radio
         >
-        <b-radio v-model="selection" :native-value="1" name="document"
+        <b-radio
+          v-model="selection"
+          :native-value="1"
+          name="document"
+          :disabled="!canPrintAttestation"
           >Attestation</b-radio
         >
-        <b-radio v-model="selection" :native-value="2" name="document"
+        <b-radio
+          v-model="selection"
+          :native-value="2"
+          name="document"
+          :disabled="!canPrintCancellation"
           >Annulation</b-radio
         >
       </div>
@@ -45,12 +57,17 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { eDocuments } from "@/types/eDocuments";
 import printJS from "print-js";
+import { eInternState } from "~/types/eInternState";
 const jade = require("jade");
 @Component
 export default class PrintForm extends Vue {
   @Prop()
   id!: number;
-  selection: eDocuments = eDocuments.Decision;
+
+  @Prop()
+  state!: eInternState;
+
+  selection: eDocuments = -1;
   reasons: boolean[] = [false, false];
   printLoading: boolean = false;
   public printDocument() {
@@ -146,6 +163,41 @@ export default class PrintForm extends Vue {
             this.printLoading = false;
           });
         break;
+    }
+  }
+
+  get canPrintDecision(): boolean {
+    switch (this.state) {
+      case eInternState.ApplicationFilled:
+      case eInternState.AssignedDecision:
+      case eInternState.Started:
+      case eInternState.Finished:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  get canPrintAttestation(): boolean {
+    switch (this.state) {
+      case eInternState.Finished:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  get canPrintCancellation(): boolean {
+    switch (this.state) {
+      case eInternState.AssignedDecision:
+      case eInternState.Started:
+      case eInternState.Finished:
+        return true;
+
+      default:
+        return false;
     }
   }
 }
