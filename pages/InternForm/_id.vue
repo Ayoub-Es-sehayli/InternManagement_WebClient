@@ -1,7 +1,11 @@
 <template>
   <b-steps animated rounded class="form-steps">
     <b-step-item step="1" label="Information Personnels" clickable>
-      <InternInfoForm :info="intern.info" :validators="infoValidator" />
+      <InternInfoForm
+        :info="intern.info"
+        :validators="infoValidator"
+        :loading="internLoading"
+      />
     </b-step-item>
     <b-step-item step="2" label="Stage" clickable>
       <InternshipInfoForm
@@ -9,13 +13,15 @@
         :validators="internshipValidator"
         :departments="departments"
         :departments-loading="departmentsLoading"
+        :loading="internLoading"
       />
     </b-step-item>
     <b-step-item step="3" label="Documents" clickable>
       <InternDocumentsForm
-        :isEdit="true"
+        :isEdit="isEdit"
         :documents="intern.documents"
         :convention="conventionVisible"
+        :loading="internLoading"
       />
     </b-step-item>
 
@@ -48,16 +54,11 @@ import Ui from "~/store/ui";
 import { eGender } from "@/types/eGender";
 import { eDocumentState } from "~/types/eDocumentState";
 import { InfoValidators, InternshipValidators } from "@/types/Validator";
-import InternInformation from "~/types/InternInformation";
-import InternshipInformation from "~/types/InternshipInformation";
 import InternModule from "~/store/InternModule";
 import Department from "@/types/Department";
-type FormDto = {
-  id: number;
-  info: InternInformation;
-  internship: InternshipInformation;
-  documents: eDocumentState[];
-};
+import Intern from "~/types/Intern";
+import FormDto from "@/types/FormDto";
+
 @Component
 export default class InternForm extends Vue {
   uiModule!: Ui;
@@ -65,6 +66,7 @@ export default class InternForm extends Vue {
   activeStep: number = 1;
   departments: Department[] = [];
   departmentsLoading: boolean = true;
+  internLoading: boolean = false;
   saving: boolean = false;
   intern: FormDto = {
     id: 0,
@@ -87,27 +89,6 @@ export default class InternForm extends Vue {
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle("Fiche de Stagiaire");
     this.internModule = getModule(InternModule, store);
-    if (this.$route.params.id) {
-      // await this.internModule.LoadIntern(sparseInt(this.$route.params.id));
-      const currentIntern = this.internModule.currentIntern!!;
-      this.intern = {
-        id: currentIntern.id,
-        info: {
-          gender: currentIntern.gender,
-          firstName: currentIntern.firstName,
-          lastName: currentIntern.lastName,
-          email: currentIntern.email,
-          phone: currentIntern.phone,
-        },
-        internship: {
-          startDate: currentIntern.startDate,
-          endDate: currentIntern.endDate,
-          division: currentIntern.divisionId,
-          responsable: currentIntern.responsable,
-        },
-        documents: currentIntern.documents,
-      };
-    }
 
     this.$axios
       .$get(process.env.BASE_URL + "/ui/divisions")
@@ -116,38 +97,58 @@ export default class InternForm extends Vue {
         this.departments = this.uiModule.departments!!;
         this.departmentsLoading = false;
       });
+
+    if (this.$route.params.id) {
+      this.internLoading = true;
+      this.$axios
+        .$get(process.env.BASE_URL + "/interns/" + this.$route.params.id)
+        .then((data: Intern) => {
+          this.internModule.LoadIntern(data);
+          this.intern = this.internModule.currentIntern!!;
+        })
+        .finally(() => {
+          this.internLoading = false;
+        });
+    }
   }
   submitIntern() {
     this.saving = true;
+    const payload = {
+      id: -1,
+      gender: this.intern.info.gender,
+      firstName: this.intern.info.firstName,
+      lastName: this.intern.info.lastName,
+      email: this.intern.info.email,
+      phone: this.intern.info.phone,
+      startDate: this.intern.internship.startDate,
+      endDate: this.intern.internship.endDate,
+      divisionId: this.intern.internship.division,
+      responsable: this.intern.internship.responsable,
+      documents: this.intern.documents,
+    };
+    let req: Promise<any> | null = null;
     if (this.$route.params.id) {
-      // TODO: PUT edit Intern
+      payload.id = parseInt(this.$route.params.id);
+      req = this.$axios.$put(
+        process.env.BASE_URL + "/interns/" + this.$route.params.id,
+        payload
+      );
     } else {
-      this.$axios
-        .$post(process.env.BASE_URL + "/interns", {
-          gender: this.intern.info.gender,
-          firstName: this.intern.info.firstName,
-          lastName: this.intern.info.lastName,
-          email: this.intern.info.email,
-          phone: this.intern.info.phone,
-          startDate: this.intern.internship.startDate,
-          endDate: this.intern.internship.endDate,
-          divisionId: this.intern.internship.division,
-          responsable: this.intern.internship.responsable,
-          documents: this.intern.documents,
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$buefy.toast.open({
-            message: "Le sauvegarde du stagiaire a échoué",
-            type: "is-danger",
-            position: "is-bottom-right",
-          });
-        })
-        .finally(() => {
-          this.saving = false;
-          this.$buefy.toast.open("Les informations sont enregistrées");
-        });
+      req = this.$axios.$post(process.env.BASE_URL + "/interns", payload);
     }
+    req
+      .catch((err) => {
+        console.log(err);
+        this.$buefy.toast.open({
+          message: "Le sauvegarde du stagiaire a échoué",
+          type: "is-danger",
+          position: "is-bottom-right",
+        });
+      })
+      .finally(() => {
+        this.saving = false;
+        this.$buefy.toast.open("Les informations sont enregistrées");
+      });
   }
   monthDiff(start: Date, end: Date) {
     var time = end.getTime() - start.getTime();
@@ -157,12 +158,12 @@ export default class InternForm extends Vue {
     return Math.round(days / 30);
   }
   get conventionVisible() {
-    return (
-      this.monthDiff(
-        this.intern.internship.startDate,
-        this.intern.internship.endDate
-      ) > 1
-    );
+    return this.intern.internship
+      ? this.monthDiff(
+          this.intern.internship.startDate,
+          this.intern.internship.endDate
+        ) > 1
+      : 0;
   }
   getNextLabel(isFinalStep: boolean) {
     return isFinalStep ? "Confirmer" : "Suivant";
@@ -189,25 +190,31 @@ export default class InternForm extends Vue {
     }
   }
   get lastNameValid() {
-    return this.intern.info.lastName.length > 3;
+    return this.intern.info ? this.intern.info.lastName.length > 3 : true;
   }
   get firstNameValid() {
-    return this.intern.info.firstName.length > 3;
+    return this.intern.info ? this.intern.info.firstName.length > 3 : true;
   }
   get emailValid() {
-    return this.intern.info.email.length > 10;
+    return this.intern.info ? this.intern.info.email.length > 10 : true;
   }
   get phoneValid() {
-    return this.intern.info.phone.length >= 10;
+    return this.intern.info ? this.intern.info.phone.length >= 10 : true;
   }
   get datesValid() {
-    return this.intern.internship.endDate > this.intern.internship.startDate;
+    return this.intern.internship
+      ? this.intern.internship.endDate > this.intern.internship.startDate
+      : true;
   }
   get divisionValid() {
-    return this.intern.internship.division !== 0;
+    return this.intern.internship
+      ? this.intern.internship.division !== 0
+      : true;
   }
   get responsableValid() {
-    return this.intern.internship.responsable.length > 5;
+    return this.intern.internship
+      ? this.intern.internship.responsable.length > 5
+      : true;
   }
   get documentsValid() {
     if (this.conventionVisible) {
@@ -272,6 +279,10 @@ export default class InternForm extends Vue {
       this.divisionValid &&
       this.documentsValid
     );
+  }
+
+  get isEdit(): boolean {
+    return Boolean(this.$route.params.id);
   }
 }
 </script>

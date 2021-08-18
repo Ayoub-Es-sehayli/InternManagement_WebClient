@@ -4,17 +4,18 @@ import { eDocumentState } from "~/types/eDocumentState";
 import { eGender } from "~/types/eGender";
 import { eInternState } from "~/types/eInternState";
 import InternListItem from "~/types/InternListItem";
+import FormDto from "~/types/FormDto";
 @Module({
   name: "internModule",
   stateFactory: true
 })
 
 export default class InternModule extends VuexModule {
-  currentIntern: Intern | null = null;
+  currentIntern: FormDto | null = null;
   interns: InternListItem[] | null = null
 
   @Mutation
-  SetCurrentIntern(intern: Intern) {
+  SetCurrentIntern(intern: FormDto) {
     this.currentIntern = intern;
   }
 
@@ -29,8 +30,7 @@ export default class InternModule extends VuexModule {
   }
   @Action
   LoadIntern(intern:Intern) {
-    this.context.commit('SetCurrentIntern', intern)
-    return {
+    this.context.commit('SetCurrentIntern', {
       id: intern.id,
       info: {
         gender: intern.gender,
@@ -40,13 +40,13 @@ export default class InternModule extends VuexModule {
         phone: intern.phone,
       },
       internship: {
-        startDate: intern.startDate,
-        endDate: intern.endDate,
+        startDate: new Date(intern.startDate),
+        endDate: new Date(intern.endDate),
         division: intern.divisionId,
         responsable: intern.responsable,
       },
       documents: intern.documents,
-    };
+    })
   }
 
 }
