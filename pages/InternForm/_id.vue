@@ -148,6 +148,7 @@ export default class InternForm extends Vue {
       .finally(() => {
         this.saving = false;
         this.$buefy.toast.open("Les informations sont enregistrées");
+        this.$router.push("/InternInfo/" + this.$route.params.id);
       });
   }
   monthDiff(start: Date, end: Date) {
