@@ -9,19 +9,34 @@
         aria-role="listitem"
         @click="showPrintModal"
         :disabled="!isEditable"
-        >Imprimer</b-dropdown-item
       >
+        <div>
+          <b-icon icon="printer" size="is-small"></b-icon>
+          Imprimer
+        </div>
+      </b-dropdown-item>
       <b-dropdown-item
         aria-role="listitem"
         @click="showDocumentModal"
         :disabled="!isEditable"
-        >Remplir Document</b-dropdown-item
+        ><div>
+          <b-icon icon="file-document-edit" size="is-small"></b-icon> Remplir
+          Document
+        </div></b-dropdown-item
       >
       <b-dropdown-item aria-role="listitem"
-        >Reclamer au Staigaire</b-dropdown-item
+        ><div>
+          <b-icon icon="email-alert" size="is-small"></b-icon>
+          Reclamer au Staigaire
+        </div></b-dropdown-item
       >
       <b-dropdown-item aria-role="listitem" :disabled="!isEditable"
-        >Modifier ce stagiaire</b-dropdown-item
+        ><div>
+          <b-icon icon="account-edit" size="is-small"></b-icon>
+          <nuxt-link class="link" :to="'/InternForm/' + idIntern"
+            >Modifier ce stagiaire</nuxt-link
+          >
+        </div></b-dropdown-item
       >
     </b-dropdown>
     <b-modal
@@ -101,3 +116,9 @@ export default class ContextDropdown extends Vue {
   }
 }
 </script>
+
+<style scoped>
+.link {
+  color: #0a0a0a;
+}
+</style>

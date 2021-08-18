@@ -155,7 +155,6 @@ export default class InternInfo extends Vue {
 
   created() {
     this.uiModule = getModule(Ui, store);
-    this.uiModule.setTitle(this.intern.fullName);
     if (this.$route.params.id) {
       this.$axios
         .$get(process.env.BASE_URL + "/interns/info/" + this.$route.params.id)
@@ -163,6 +162,7 @@ export default class InternInfo extends Vue {
           this.intern = data;
           this.intern.startDate = new Date(data.startDate);
           this.intern.endDate = new Date(data.endDate);
+          this.uiModule.setTitle(this.intern.fullName);
         })
         .finally(() => (this.internLoading = false));
     }
