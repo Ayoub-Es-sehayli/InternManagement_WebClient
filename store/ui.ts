@@ -16,7 +16,7 @@ export default class Ui extends VuexModule {
     "Stage Annulé"
   ];
 
-  documentState: String[] = ["Absent", "Soumis", "Non Valide", "Valide"];
+  documentState: String[] = ["Absent", "Non Requis", "Soumis", "Non Valide", "Valide"];
   departments: Department[] | null = null;
 
   @Mutation

@@ -42,6 +42,7 @@
         btn-text="Options"
         :id-intern="intern.id"
         :state="intern.state"
+        @changed="LoadIntern()"
       />
     </div>
     <div>
@@ -92,7 +93,7 @@
       aria-modal
     >
       <template #default="props">
-        <FinStageForm @close="props.close" />
+        <FinStageForm :view-model="intern.documents" @close="props.close" />
       </template>
     </b-modal>
   </div>
@@ -146,6 +147,7 @@ export default class InternInfo extends Vue {
       eDocumentState.Missing,
       eDocumentState.Missing,
       eDocumentState.Missing,
+      eDocumentState.Missing,
     ],
     attendanceDays: [],
     state: -1,
@@ -155,6 +157,9 @@ export default class InternInfo extends Vue {
 
   created() {
     this.uiModule = getModule(Ui, store);
+    this.LoadIntern();
+  }
+  LoadIntern() {
     if (this.$route.params.id) {
       this.$axios
         .$get(process.env.BASE_URL + "/interns/info/" + this.$route.params.id)
@@ -167,7 +172,6 @@ export default class InternInfo extends Vue {
         .finally(() => (this.internLoading = false));
     }
   }
-
   getDocumentClass(documentState: eDocumentState) {
     switch (documentState) {
       case eDocumentState.Missing:
