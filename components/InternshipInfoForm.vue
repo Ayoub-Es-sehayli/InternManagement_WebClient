@@ -11,9 +11,13 @@
       <b-datepicker
         size="is-medium"
         v-model="internship.startDate"
+        :unselectable-days-of-week="[0, 6]"
+        :first-day-of-week="1"
+        locale="fr-FR"
         icon="calendar-today"
         trap-focus
         @blur="changedState.startDate = true"
+        :loading="internLoading"
       ></b-datepicker>
     </b-field>
     <b-field
@@ -27,9 +31,13 @@
       <b-datepicker
         size="is-medium"
         v-model="internship.endDate"
+        :unselectable-days-of-week="[0, 6]"
+        :first-day-of-week="1"
         icon="calendar-today"
+        locale="fr-FR"
         trap-focus
         @blur="changedState.endDate = true"
+        :loading="internLoading"
       ></b-datepicker>
     </b-field>
     <b-field
@@ -49,6 +57,7 @@
         size="is-medium"
         expanded
         @blur="changedState.responsable = true"
+        :loading="internLoading"
       ></b-input>
     </b-field>
     <b-field
@@ -64,7 +73,7 @@
         v-model="internship.division"
         @blur="changedState.division = true"
         :validation-message="getValidatorMessage(validators.division)"
-        :loading="departmentsLoading"
+        :loading="departmentsLoading || internLoading"
         v-if="departments"
         expanded
       >
@@ -108,6 +117,9 @@ export default class InternshipInfoForm extends Vue {
 
   @Prop()
   departmentsLoading!: boolean;
+
+  @Prop()
+  internLoading!: boolean;
 
   changedState: ChangedState = {
     startDate: false,
