@@ -54,13 +54,13 @@
       </template>
       <div class="card-content fin-stage-grid">
         <b-field grouped class="report">
-          <b-switch v-model="reportDto.exists" @click="toModel()"
+          <b-switch v-model="reportDto.exists" @input="toModel()"
             >Rapport</b-switch
           >
           <b-checkbox
             v-if="reportDto.exists"
             v-model="reportDto.valid"
-            @click="toModel()"
+            @input="toModel()"
             >{{ reportValidity() }}</b-checkbox
           >
         </b-field>

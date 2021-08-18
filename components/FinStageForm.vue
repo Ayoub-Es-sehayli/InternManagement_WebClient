@@ -6,13 +6,13 @@
     </header>
     <section class="modal-card-body">
       <b-field grouped>
-        <b-switch v-model="reportDto.exists" @click="toModel()"
+        <b-switch v-model="reportDto.exists" @input="toModel()"
           >Rapport</b-switch
         >
         <b-checkbox
           v-if="reportDto.exists"
           v-model="reportDto.valid"
-          @click="toModel()"
+          @input="toModel()"
           >{{ reportValidity() }}</b-checkbox
         >
       </b-field>
@@ -50,16 +50,16 @@ type ReportDTO = {
 };
 
 @Component({
-  name: "fin-stage-form"
+  name: "fin-stage-form",
 })
 export default class FinStageForm extends Vue {
   documents: Documents = {
-    report: eDocumentState.Missing,
-    evalutionForm: eDocumentState.Missing
+    report: eDocumentState.Valid,
+    evalutionForm: eDocumentState.Missing,
   };
   reportDto: ReportDTO = {
     exists: false,
-    valid: false
+    valid: false,
   };
   missing = eDocumentState.Missing;
   submitted = eDocumentState.Submitted;
@@ -74,17 +74,17 @@ export default class FinStageForm extends Vue {
     if (this.documents.report == eDocumentState.Missing) {
       this.reportDto = {
         exists: false,
-        valid: false
+        valid: false,
       };
     } else if (this.documents.report == eDocumentState.Invalid) {
       this.reportDto = {
         exists: true,
-        valid: false
+        valid: false,
       };
     } else if (this.documents.report == eDocumentState.Valid) {
       this.reportDto = {
         exists: true,
-        valid: true
+        valid: true,
       };
     }
   }
