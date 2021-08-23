@@ -31,7 +31,12 @@ export default class Index extends Vue {
 
     this.$axios
       .$get(process.env.BASE_URL + "/dashboard/latest")
-      .then((data) => (this.latestInterns = data));
+      .then((data: LatestIntern[]) => {
+        this.latestInterns = data;
+        this.latestInterns.forEach((intern) => {
+          intern.startDate = new Date(intern.startDate);
+        });
+      });
 
     this.$axios
       .$get(process.env.BASE_URL + "/dashboard/finishing")
@@ -54,7 +59,7 @@ export default class Index extends Vue {
   row-gap: 20px;
   column-gap: 30px;
   grid-template-columns: 600px 600px;
-  grid-template-rows: 250px 250px;
+  grid-template-rows: 1fr 1fr;
   grid-template-areas:
     "latest  finishing"
     "alerts  stats";

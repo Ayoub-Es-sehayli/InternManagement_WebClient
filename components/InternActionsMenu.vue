@@ -5,21 +5,43 @@
         <b-button type="is-warning">{{ btnText }}</b-button>
       </template>
 
-      <b-dropdown-item aria-role="listitem" @click="showPrintModal"
-        >Imprimer</b-dropdown-item
+      <b-dropdown-item
+        aria-role="listitem"
+        @click="showPrintModal"
+        :disabled="!isEditable"
       >
-      <b-dropdown-item aria-role="listitem" @click="showDocumentModal"
-        >Remplir Document</b-dropdown-item
+        <div>
+          <b-icon icon="printer" size="is-small"></b-icon>
+          Imprimer
+        </div>
+      </b-dropdown-item>
+      <b-dropdown-item
+        aria-role="listitem"
+        @click="showDocumentModal"
+        :disabled="!isEditable"
+        ><div>
+          <b-icon icon="file-document-edit" size="is-small"></b-icon> Remplir
+          Document
+        </div></b-dropdown-item
       >
       <b-dropdown-item aria-role="listitem"
-        >Reclamer au Staigaire</b-dropdown-item
+        ><div>
+          <b-icon icon="email-alert" size="is-small"></b-icon>
+          Reclamer au Staigaire
+        </div></b-dropdown-item
       >
-      <b-dropdown-item aria-role="listitem"
-        >Modifier ce stagiaire</b-dropdown-item
+      <b-dropdown-item aria-role="listitem" :disabled="!isEditable"
+        ><div>
+          <b-icon icon="account-edit" size="is-small"></b-icon>
+          <nuxt-link class="link" :to="'/InternForm/' + idIntern"
+            >Modifier ce stagiaire</nuxt-link
+          >
+        </div></b-dropdown-item
       >
     </b-dropdown>
     <b-modal
       v-model="printModalVisible"
+      :state="state"
       has-modal-card
       trap-focus
       :destroy-on-hide="false"
@@ -28,11 +50,12 @@
       aria-modal
     >
       <template #default="props">
-        <PrintForm @close="props.close" :id="idIntern" />
+        <PrintForm @close="props.close" :id="idIntern" :state="state" />
       </template>
     </b-modal>
     <b-modal
       v-model="documentModalVisible"
+      :state="state"
       has-modal-card
       trap-focus
       :destroy-on-hide="false"
@@ -45,6 +68,7 @@
           @close="props.close"
           :id="idIntern"
           @changed="handleDocumentModalChanged()"
+          :state="state"
         />
       </template>
     </b-modal>
@@ -52,6 +76,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
+import { eInternState } from "~/types/eInternState";
 
 @Component
 export default class ContextDropdown extends Vue {
@@ -60,6 +85,9 @@ export default class ContextDropdown extends Vue {
 
   @Prop()
   btnText!: string;
+
+  @Prop()
+  state!: eInternState;
 
   printModalVisible: boolean = false;
   documentModalVisible: boolean = false;
@@ -75,5 +103,22 @@ export default class ContextDropdown extends Vue {
     this.$emit("changed");
     this.documentModalVisible = false;
   }
+
+  get isEditable(): boolean {
+    switch (this.state) {
+      case eInternState.FileClosed:
+      case eInternState.Cancelled:
+        return false;
+
+      default:
+        return true;
+    }
+  }
 }
 </script>
+
+<style scoped>
+.link {
+  color: #0a0a0a;
+}
+</style>

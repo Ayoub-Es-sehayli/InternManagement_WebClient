@@ -6,13 +6,13 @@
     </header>
     <section class="modal-card-body">
       <b-field grouped>
-        <b-switch v-model="reportDto.exists" @click="toModel()"
+        <b-switch v-model="reportDto.exists" @input="toModel()"
           >Rapport</b-switch
         >
         <b-checkbox
           v-if="reportDto.exists"
           v-model="reportDto.valid"
-          @click="toModel()"
+          @input="toModel()"
           >{{ reportValidity() }}</b-checkbox
         >
       </b-field>
@@ -31,12 +31,18 @@
         class="cancel-btn"
         @click="$emit('close')"
       />
-      <b-button icon-left="content-save" label="Sauvegarder" class="save-btn" />
+      <b-button
+        icon-left="content-save"
+        label="Sauvegarder"
+        class="save-btn"
+        :loading="saving"
+        @click="save()"
+      />
     </footer>
   </form>
 </template>
 <script lang="ts">
-import { Vue, Component } from "vue-property-decorator";
+import { Vue, Component, Prop } from "vue-property-decorator";
 import { eDocumentState } from "~/types/eDocumentState";
 
 type Documents = {
@@ -50,23 +56,34 @@ type ReportDTO = {
 };
 
 @Component({
-  name: "fin-stage-form"
+  name: "fin-stage-form",
 })
 export default class FinStageForm extends Vue {
+  @Prop()
+  viewModel!: eDocumentState[];
+
+  @Prop()
+  id!: number;
+
   documents: Documents = {
-    report: eDocumentState.Missing,
-    evalutionForm: eDocumentState.Missing
+    report: eDocumentState.Valid,
+    evalutionForm: eDocumentState.Missing,
   };
   reportDto: ReportDTO = {
     exists: false,
-    valid: false
+    valid: false,
   };
   missing = eDocumentState.Missing;
   submitted = eDocumentState.Submitted;
   valid = eDocumentState.Valid;
   invalid = eDocumentState.Invalid;
 
+  saving: boolean = false;
   created() {
+    if (this.viewModel) {
+      this.documents.report = this.viewModel[4];
+      this.documents.evalutionForm = this.viewModel[5];
+    }
     this.toDto();
   }
 
@@ -74,17 +91,17 @@ export default class FinStageForm extends Vue {
     if (this.documents.report == eDocumentState.Missing) {
       this.reportDto = {
         exists: false,
-        valid: false
+        valid: false,
       };
     } else if (this.documents.report == eDocumentState.Invalid) {
       this.reportDto = {
         exists: true,
-        valid: false
+        valid: false,
       };
     } else if (this.documents.report == eDocumentState.Valid) {
       this.reportDto = {
         exists: true,
-        valid: true
+        valid: true,
       };
     }
   }
@@ -100,12 +117,37 @@ export default class FinStageForm extends Vue {
       this.documents.report = eDocumentState.Missing;
     }
   }
-
+  toVM() {
+    this.viewModel[4] = this.documents.report;
+    this.viewModel[5] = this.documents.evalutionForm;
+  }
   reportValidity() {
     if (!this.reportDto.valid) {
       return "Invalid";
     }
     return "Valid";
+  }
+
+  save() {
+    this.saving = true;
+    this.$axios
+      .$put(
+        process.env.BASE_URL + "/interns/documents/" + this.id,
+        this.documents
+      )
+      .then((_) => {
+        this.$buefy.toast.open(
+          "Les Information ont étaient enregistrées avec succès!"
+        );
+        this.toVM();
+      })
+      .catch((err) => {
+        console.log(err);
+        this.$buefy.toast.open("Le sauvegarde a échoué.");
+      })
+      .finally(() => {
+        this.saving = false;
+      });
   }
 }
 </script>

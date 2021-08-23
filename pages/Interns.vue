@@ -72,6 +72,7 @@
             <InternActionsMenu
               btn-text="..."
               :id-intern="props.row.id"
+              :state="props.row.state"
               @changed="LoadInterns()"
             />
             <nuxt-link :to="'/InternInfo/' + props.row.id">

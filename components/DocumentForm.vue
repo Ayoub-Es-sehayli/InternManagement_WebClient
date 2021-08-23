@@ -6,13 +6,25 @@
     </header>
     <section class="modal-card-body">
       <div>
-        <b-radio v-model="document.type" :native-value="0" name="document"
+        <b-radio
+          v-model="document.type"
+          :native-value="0"
+          name="document"
+          :disabled="!canSetDecision"
           >Decision</b-radio
         >
-        <b-radio v-model="document.type" :native-value="1" name="document"
+        <b-radio
+          v-model="document.type"
+          :native-value="1"
+          name="document"
+          :disabled="!canSetAttestation"
           >Attestation</b-radio
         >
-        <b-radio v-model="document.type" :native-value="2" name="document"
+        <b-radio
+          v-model="document.type"
+          :native-value="2"
+          name="document"
+          :disabled="!canSetCancellation"
           >Annulation</b-radio
         >
       </div>
@@ -56,6 +68,7 @@
         label="Sauvegarder"
         class="save-btn"
         @click="saveDocument()"
+        :loading="saving"
       />
     </footer>
   </form>
@@ -68,13 +81,16 @@ import InternModule from "@/store/InternModule";
 import { getModule } from "vuex-module-decorators";
 import { store } from "@/store";
 import DocumentViewModel from "@/types/DocumentViewModel";
+import { eInternState } from "@/types/eInternState";
 
 @Component
 export default class DocumentForm extends Vue {
   internModule!: InternModule;
   @Prop()
   id!: number;
-  selection: eDocuments = eDocuments.Decision;
+
+  @Prop()
+  state!: eInternState;
 
   document: DocumentViewModel = {
     type: eDocuments.Decision,
@@ -89,7 +105,7 @@ export default class DocumentForm extends Vue {
   saveDocument() {
     this.saving = true;
     let documentType = "decision";
-    switch (this.selection) {
+    switch (this.document.type) {
       case eDocuments.Decision:
         documentType = "decision";
         break;
@@ -111,6 +127,7 @@ export default class DocumentForm extends Vue {
       )
       .then((_) => {
         this.$emit("changed");
+        this.$buefy.toast.open("Les informations sont enregistrées");
       })
       .catch((err) => {
         console.log(err);
@@ -122,7 +139,6 @@ export default class DocumentForm extends Vue {
       })
       .finally(() => {
         this.saving = false;
-        this.$buefy.toast.open("Les informations sont enregistrées");
       });
   }
 
@@ -133,6 +149,41 @@ export default class DocumentForm extends Vue {
   setNormalHeightClass() {
     var el = document.querySelector(".modal-card.document-form");
     el?.classList.remove("document-form-fullheight");
+  }
+
+  get canSetDecision(): boolean {
+    switch (this.state) {
+      case eInternState.ApplicationFilled:
+      case eInternState.AssignedDecision:
+      case eInternState.Started:
+      case eInternState.Finished:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  get canSetAttestation(): boolean {
+    switch (this.state) {
+      case eInternState.Finished:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  get canSetCancellation(): boolean {
+    switch (this.state) {
+      case eInternState.AssignedDecision:
+      case eInternState.Started:
+      case eInternState.Finished:
+        return true;
+
+      default:
+        return false;
+    }
   }
 }
 </script>

@@ -1,6 +1,6 @@
 type LatestIntern = {
   id: number;
   fullName: string;
-  dateAdded: Date;
+  startDate: Date;
 };
 export default LatestIntern;

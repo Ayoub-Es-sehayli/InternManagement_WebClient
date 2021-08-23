@@ -22,17 +22,16 @@
       <nuxt-link class="link" to="/Users"
         ><b-icon icon="account-group"></b-icon>Utilisateurs</nuxt-link
       >
-      
+
       <span></span>
       <nuxt-link class="link" to="/Login"
         ><b-icon icon="account-circle"></b-icon>Connexion</nuxt-link
       >
-      
     </div>
   </div>
 </template>
 
-<style>
+<style scoped>
 .navmenu {
   display: grid;
   justify-items: center;

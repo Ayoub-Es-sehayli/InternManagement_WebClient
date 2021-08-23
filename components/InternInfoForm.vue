@@ -21,6 +21,7 @@
         v-model="info.lastName"
         size="is-medium"
         expanded
+        :loading="internLoading"
         @blur="changedState.lastName = true"
       ></b-input>
     </b-field>
@@ -37,6 +38,7 @@
       <b-input
         v-model="info.firstName"
         size="is-medium"
+        :loading="internLoading"
         @blur="changedState.firstName = true"
       ></b-input>
     </b-field>
@@ -50,6 +52,7 @@
         v-model="info.email"
         icon="email"
         size="is-medium"
+        :loading="internLoading"
         @blur="changedState.email = true"
       ></b-input>
     </b-field>
@@ -63,6 +66,7 @@
         v-model="info.phone"
         icon="phone"
         size="is-medium"
+        :loading="internLoading"
         @blur="changedState.phone = true"
       ></b-input>
     </b-field>
@@ -86,6 +90,9 @@ export default class InternInfoForm extends Vue {
 
   @Prop()
   validators!: InfoValidators;
+
+  @Prop()
+  internLoading!: boolean;
 
   changedState: ChangedState = {
     lastName: false,

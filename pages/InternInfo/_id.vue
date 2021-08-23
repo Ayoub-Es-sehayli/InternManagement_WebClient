@@ -2,8 +2,8 @@
   <div class="info-grid">
     <div class="decision">
       <div v-if="!internLoading">
-        <b-icon icon="paperclip"></b-icon> <strong>DOCH/DtRH</strong
-        >{{ intern.codeDecision }}
+        <b-icon icon="paperclip"></b-icon> <strong>DOCH/DtRH</strong>
+        {{ intern.decision }}
       </div>
       <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
@@ -17,9 +17,9 @@
       </div>
       <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
-    <div class="department">
+    <div class="division">
       <div v-if="!internLoading">
-        <b-icon icon="domain"></b-icon> {{ intern.department }}
+        <b-icon icon="domain"></b-icon> {{ intern.division }}
       </div>
       <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
@@ -38,46 +38,47 @@
     </div>
     <div class="dossier"><b-icon icon="inbox-multiple"></b-icon>Dossier</div>
     <div class="actions">
-      <InternActionsMenu btn-text="Options" :id-intern="intern.id" />
+      <InternActionsMenu
+        btn-text="Options"
+        :id-intern="intern.id"
+        :state="intern.state"
+        @changed="LoadIntern()"
+      />
     </div>
     <div>
       <div v-if="!internLoading">
         <b-datepicker
-          :events="intern.absentDays"
+          indicators="bars"
+          :unselectable-days-of-week="[0, 6]"
+          :first-day-of-week="1"
+          :events="intern.attendanceDays"
           :min-date="intern.startDate"
           :max-date="intern.endDate"
+          locale="fr-FR"
         >
           <template #trigger>
             <b-button expanded class="absence-info"
-              >Absenté {{ intern.absentDays.length }} jours</b-button
+              >Absenté {{ absenceCount }} jours</b-button
             >
           </template>
         </b-datepicker>
       </div>
       <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
     </div>
-    <div class="documents">
-      <div v-if="!internLoading">
-        <b-tooltip
-          v-for="(document, index) in getInternDocumentList()"
-          :key="document"
-          :label="getDocumentTooltipLabel(intern.documents[index])"
+    <div class="documents" v-if="!internLoading">
+      <b-tooltip
+        v-for="(document, index) in getInternDocumentList()"
+        :key="document"
+        :label="getDocumentTooltipLabel(intern.documents[index])"
+      >
+        <b-button
+          expanded
+          rounded
+          :class="getDocumentClass(intern.documents[index])"
         >
-          <b-button
-            expanded
-            rounded
-            :class="getDocumentClass(intern.documents[index])"
-          >
-            {{ document }}
-          </b-button>
-        </b-tooltip>
-      </div>
-      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
-      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
-      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
-      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
-      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
-      <b-skeleton size="is-large" :active="internLoading"></b-skeleton>
+          {{ document }}
+        </b-button>
+      </b-tooltip>
     </div>
     <b-button class="proceed-btn" @click="showEndModal()" expanded
       >Procèder à Fin de stage</b-button
@@ -92,7 +93,7 @@
       aria-modal
     >
       <template #default="props">
-        <FinStageForm @close="props.close" />
+        <FinStageForm :view-model="intern.documents" @close="props.close" />
       </template>
     </b-modal>
   </div>
@@ -107,21 +108,22 @@ import { store } from "@/store/index";
 import { eDocumentState } from "@/types/eDocumentState";
 import { eInternState } from "@/types/eInternState";
 
-type AbsentDays = {
+type AttendanceDay = {
   date: Date;
   type: String;
 };
 type Intern = {
   id: number;
-  codeDecision: String;
-  department: String;
   fullName: String;
+  decision: String;
+  division: String;
+  responsable: String;
   email: String;
   phone: String;
   startDate: Date;
   endDate: Date;
   documents: eDocumentState[];
-  absentDays: AbsentDays[];
+  attendanceDays: AttendanceDay[];
   state: eInternState;
 };
 @Component({
@@ -131,11 +133,12 @@ export default class InternInfo extends Vue {
   uiModule!: Ui;
   intern: Intern = {
     id: -1,
-    codeDecision: "",
-    department: "",
+    decision: "",
+    division: "",
     fullName: "",
     email: "",
     phone: "",
+    responsable: "",
     startDate: new Date(),
     endDate: new Date(),
     documents: [
@@ -144,20 +147,34 @@ export default class InternInfo extends Vue {
       eDocumentState.Missing,
       eDocumentState.Missing,
       eDocumentState.Missing,
+      eDocumentState.Missing,
     ],
-    absentDays: [],
-    state: eInternState.ApplicationFilled,
+    attendanceDays: [],
+    state: -1,
   };
   endModalVisible: boolean = false;
   internLoading: boolean = true;
 
   created() {
     this.uiModule = getModule(Ui, store);
-    this.uiModule.setTitle(this.intern.fullName);
+    this.LoadIntern();
+  }
+  LoadIntern() {
     if (this.$route.params.id) {
+      this.$axios
+        .$get(process.env.BASE_URL + "/interns/info/" + this.$route.params.id)
+        .then((data: Intern) => {
+          this.intern = data;
+          this.intern.startDate = new Date(data.startDate);
+          this.intern.endDate = new Date(data.endDate);
+          this.intern.attendanceDays.forEach((day) => {
+            day.date = new Date(day.date);
+          });
+          this.uiModule.setTitle(this.intern.fullName);
+        })
+        .finally(() => (this.internLoading = false));
     }
   }
-
   getDocumentClass(documentState: eDocumentState) {
     switch (documentState) {
       case eDocumentState.Missing:
@@ -214,6 +231,10 @@ export default class InternInfo extends Vue {
   showEndModal() {
     this.endModalVisible = !this.endModalVisible;
   }
+  get absenceCount() {
+    return this.intern.attendanceDays.filter((day) => day.type == "is-danger")
+      .length;
+  }
 }
 </script>
 
@@ -230,7 +251,7 @@ export default class InternInfo extends Vue {
   font-size: 18px;
   grid-template-areas:
     "decision     state       actions"
-    "contact-info date        department"
+    "contact-info date        division"
     "dossier      dossier     absence-info"
     "documents    documents   documents"
     "documents    documents   documents"
@@ -272,8 +293,8 @@ export default class InternInfo extends Vue {
   grid-area: date;
   text-align: center;
 }
-.department {
-  grid-area: department;
+.division {
+  grid-area: division;
 }
 .state {
   grid-area: state;
