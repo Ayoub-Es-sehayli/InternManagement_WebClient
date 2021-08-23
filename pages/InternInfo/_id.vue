@@ -58,7 +58,7 @@
         >
           <template #trigger>
             <b-button expanded class="absence-info"
-              >Absenté {{ intern.attendanceDays.length }} jours</b-button
+              >Absenté {{ absenceCount }} jours</b-button
             >
           </template>
         </b-datepicker>
@@ -167,6 +167,9 @@ export default class InternInfo extends Vue {
           this.intern = data;
           this.intern.startDate = new Date(data.startDate);
           this.intern.endDate = new Date(data.endDate);
+          this.intern.attendanceDays.forEach((day) => {
+            day.date = new Date(day.date);
+          });
           this.uiModule.setTitle(this.intern.fullName);
         })
         .finally(() => (this.internLoading = false));
@@ -227,6 +230,10 @@ export default class InternInfo extends Vue {
 
   showEndModal() {
     this.endModalVisible = !this.endModalVisible;
+  }
+  get absenceCount() {
+    return this.intern.attendanceDays.filter((day) => day.type == "is-danger")
+      .length;
   }
 }
 </script>
