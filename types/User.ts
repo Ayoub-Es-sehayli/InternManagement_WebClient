@@ -1,8 +1,6 @@
 type User={
-    email : string
+    username : string
     password : string
-    remember_me : boolean
-
 }
 
 export default User 

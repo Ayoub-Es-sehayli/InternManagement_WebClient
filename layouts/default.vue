@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from "vue-property-decorator";
+import { Component, Vue } from "vue-property-decorator";
 import { getModule } from "vuex-module-decorators";
 import { store } from "@/store/index";
 import Ui from "@/store/ui";
@@ -19,7 +19,6 @@ const uiModule = getModule(Ui, store);
 
 @Component
 export default class Default extends Vue {
-  // title: String = uiModule.title;
   get title() {
     return uiModule.title;
   }

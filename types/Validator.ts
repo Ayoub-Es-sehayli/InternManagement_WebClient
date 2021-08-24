@@ -16,7 +16,7 @@ export type InternshipValidators = {
   responsable: Validator;
 };
 export type AuthenticateValidators = {
-  email: Validator;
+  username: Validator;
   password: Validator;
 };
 export type UserValidators ={

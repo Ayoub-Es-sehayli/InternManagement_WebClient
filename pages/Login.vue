@@ -1,23 +1,44 @@
 <template>
   <section class="form">
-    <b-field class="login" 
-             label="Email"
-             :type="changedState.email ? getValidatorType(authenticateValidator.email) : ''"
-             :message="changedState.email ? getValidatorMessage(authenticateValidator.email) : ''">
+    <b-field
+      class="login"
+      label="Email"
+      :type="
+        changedState.username
+          ? getValidatorType(authenticateValidator.username)
+          : ''
+      "
+      :message="
+        changedState.username
+          ? getValidatorMessage(authenticateValidator.username)
+          : ''
+      "
+    >
       <b-input
         placeholder="Entrez l'email"
-        v-model="user.email"
+        v-model="user.username"
         type="email"
         size="is-default"
         icon="email"
-        @blur="changedState.email = true"
-        required>
+        @blur="changedState.username = true"
+        required
+      >
       </b-input>
     </b-field>
-    <b-field class="password" 
-             label="Mot de passe"
-             :type="changedState.password ? getValidatorType(authenticateValidator.password) : ''"
-             :message="changedState.password ? getValidatorMessage(authenticateValidator.password) : ''">
+    <b-field
+      class="password"
+      label="Mot de passe"
+      :type="
+        changedState.password
+          ? getValidatorType(authenticateValidator.password)
+          : ''
+      "
+      :message="
+        changedState.password
+          ? getValidatorMessage(authenticateValidator.password)
+          : ''
+      "
+    >
       <b-input
         type="password"
         v-model="user.password"
@@ -25,14 +46,14 @@
         size="is-default"
         icon="lock"
         @blur="changedState.password = true"
-        password-reveal>
+        password-reveal
+      >
       </b-input>
     </b-field>
-    <b-field class="check">
-      <b-checkbox v-model="user.remember_me" checked>Se souvenir de moi</b-checkbox>
-    </b-field>
     <b-field>
-      <b-button  class="confirmation" size="is-default" @click="Authenticate()">Confirmer</b-button>
+      <b-button class="confirmation" size="is-default" @click="Authenticate()"
+        >Confirmer</b-button
+      >
     </b-field>
   </section>
 </template>
@@ -43,50 +64,70 @@ import User from "@/types/User";
 import { getModule } from "vuex-module-decorators";
 import Ui from "@/store/ui";
 import { store } from "@/store/index";
-import Authentication from "@/store/Authentication";
-import Validator, { AuthenticateValidators } from '@/types/Validator';
+// import Authentication from "@/store/Authentication";
+import Validator, { AuthenticateValidators } from "@/types/Validator";
+import eUserRole from "@/types/eUserRole";
 
-type ChangedState ={
-  email: boolean;
+type ChangedState = {
+  username: boolean;
   password: boolean;
 };
 @Component
 export default class Login extends Vue {
   uiModule!: Ui;
-  authenticationModule !: Authentication;
-  user: User ={
-    email :"",
-    password:"",
-    remember_me: false
+  // authenticationModule!: Authentication;
+  user: User = {
+    username: "",
+    password: "",
   };
-  changedState : ChangedState ={
-    email :false,
-    password: false
+  changedState: ChangedState = {
+    username: false,
+    password: false,
   };
-  created(){
+  created() {
     this.uiModule = getModule(Ui, store);
     this.uiModule.setTitle("Authentification");
-    this.authenticationModule= getModule(Authentication,store);
   }
-  Authenticate(){
-    this.authenticationModule.Authenticate(this.user);
-  }
-  get EmailValid(){
-    return this.user.email.length > 10;
-  }
-  get PasswordValid(){
-    return this.user.password.length > 6;
-  }
-  get authenticateValidator (): AuthenticateValidators {
-    return {
-      email :{
-        state: this.EmailValid,
-        message: "Ce champs doit comporter au moins 10 caractères"
-      },
-      password :{
-        state: this.PasswordValid,
-        message:"Ce champs doit comporter au moins 6 caractères"
+  async Authenticate() {
+    if (!this.EmailValid || !this.PasswordValid) {
+      this.$buefy.toast.open("Veuillez vérifier votre mail/mot de passe");
+      return;
+    }
+    try {
+      await this.$auth.loginWith("local", { data: this.user });
+      // this.$auth.setUser(response?.data);
+      console.log(this.$auth.user);
+
+      switch (this.$auth.user as unknown as eUserRole) {
+        case eUserRole.Admin:
+          this.$router.push("/");
+          break;
+        case eUserRole.Supervisor:
+          this.$router.push("/PunchIn");
+          break;
       }
+    } catch (err) {
+      console.log(err);
+
+      this.$buefy.toast.open("Veuillez vérifier votre mail/mot de passe");
+    }
+  }
+  get EmailValid() {
+    return this.user.username.length > 10;
+  }
+  get PasswordValid() {
+    return this.user.password.length >= 6;
+  }
+  get authenticateValidator(): AuthenticateValidators {
+    return {
+      username: {
+        state: this.EmailValid,
+        message: "Ce champs doit comporter au moins 10 caractères",
+      },
+      password: {
+        state: this.PasswordValid,
+        message: "Ce champs doit comporter au moins 6 caractères",
+      },
     };
   }
   getValidatorType(validator: Validator) {
