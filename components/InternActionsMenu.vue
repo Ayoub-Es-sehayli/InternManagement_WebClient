@@ -41,7 +41,6 @@
     </b-dropdown>
     <b-modal
       v-model="printModalVisible"
-      :state="state"
       has-modal-card
       trap-focus
       :destroy-on-hide="false"
@@ -55,7 +54,6 @@
     </b-modal>
     <b-modal
       v-model="documentModalVisible"
-      :state="state"
       has-modal-card
       trap-focus
       :destroy-on-hide="false"

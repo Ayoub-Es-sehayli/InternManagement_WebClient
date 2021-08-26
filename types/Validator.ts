@@ -19,10 +19,13 @@ export type AuthenticateValidators = {
   username: Validator;
   password: Validator;
 };
-export type UserValidators ={
-    nom: Validator;
-    prenom: Validator;
-    email: Validator;
-    role: Validator;
+export interface UserFormValidators {
+
+  lastName: Validator;
+  firstName: Validator;
+  email: Validator;
+}
+export interface UserValidators extends UserFormValidators {
+  role: Validator;
     password: Validator;
 };
