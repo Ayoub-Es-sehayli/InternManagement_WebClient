@@ -5,16 +5,19 @@
     </div>
     <div class="intern">
       <b-autocomplete
-        :data="interns"
-        field="name"
-        v-model="punchInData.fullName"
-        @select="(option) => (punchInData.internId = option ? option.Id : -1)"
+        :data="filteredInterns"
+        v-model="filter"
+        field="fullName"
+        @select="
+          (option) => (punchInData.internId = option ? option.internId : -1)
+        "
         expanded
         size="is-medium"
         icon="magnify"
         placeholder="Nom Stagiaire"
         clearable
         :loading="internsLoading"
+        keep-first
       >
       </b-autocomplete>
     </div>
@@ -29,10 +32,20 @@
       class="time"
       v-model="punchInData.dateTime"
     ></b-clockpicker>
-    <b-button class="in" size="is-large" @click="showEnteredDialog()"
+    <b-button
+      class="in"
+      size="is-large"
+      @click="showEnteredDialog()"
+      :disabled="!canEnter"
+      :loading="saving"
       >Entrée</b-button
     >
-    <b-button class="out" size="is-large" @click="showLeftDialog()"
+    <b-button
+      class="out"
+      size="is-large"
+      @click="showLeftDialog()"
+      :disabled="!canExit"
+      :loading="saving"
       >Sortie</b-button
     >
   </form>
@@ -50,7 +63,6 @@ import eAttendanceType from "~/types/eAttendanceType";
 
 type FormData = {
   internId: number;
-  fullName: string;
   dateTime: Date;
 };
 @Component
@@ -60,13 +72,14 @@ export default class PunchIn extends Vue {
   searchValue: String = "";
   interns: AttendanceItem[] = [];
   internsLoading: boolean = true;
+  saving: boolean = false;
   minTime: Date = new Date();
   maxTime: Date = new Date();
   punchInData: FormData = {
     internId: -1,
-    fullName: "",
     dateTime: new Date(),
   };
+  filter: string = "";
   created() {
     this.uiModule = getModule(Ui, store);
     this.attendanceModule = getModule(Attendance, store);
@@ -77,18 +90,31 @@ export default class PunchIn extends Vue {
     this.maxTime.setHours(18);
     this.maxTime.setMinutes(0);
 
-    this.$axios
-      .$get(process.env.BASE_URL + "/attendance")
-      .then((data: AttendanceItem[]) => {
-        this.attendanceModule.setInterns(data);
+    this.attendanceModule
+      .LoadAttendanceList()
+      .then(() => {
         this.interns = this.attendanceModule.interns!!;
-        this.internsLoading = false;
+      })
+      .catch((err) => {
+        console.error(err);
+        this.interns = [];
       });
+    this.internsLoading = false;
   }
   get countAbsent() {
     return this.interns.filter(
       (intern) => intern.type == eAttendanceType.Absent
     ).length;
+  }
+  get filteredInterns() {
+    return this.interns.filter((option) => {
+      return (
+        option.fullName
+          .toString()
+          .toLowerCase()
+          .indexOf(this.filter.toLowerCase()) >= 0
+      );
+    });
   }
   showEnteredDialog() {
     Dialog.confirm({
@@ -112,24 +138,62 @@ export default class PunchIn extends Vue {
     );
   }
   markEntered() {
-    if (this.interns[this.findInternIndex()].type == eAttendanceType.Absent) {
-      this.interns[this.findInternIndex()].type = eAttendanceType.Enter;
+    this.saving = true;
+    if (this.canEnter) {
+      this.attendanceModule
+        .markEntered(this.punchInData)
+        .then(() => {
+          this.interns[this.findInternIndex()].type = eAttendanceType.Enter;
+        })
+        .catch((err) => {
+          console.error(err);
+          Dialog.alert({
+            title: "Alerte",
+            message: "Une erreur s'est produite",
+          });
+        });
     } else {
       Dialog.alert({
         title: "Alerte",
         message: "Ce Stagiaire est présent déjà!",
       });
     }
+    this.saving = false;
   }
   markLeft() {
-    if (this.interns[this.findInternIndex()].type == eAttendanceType.Enter) {
-      this.interns[this.findInternIndex()].type != eAttendanceType.Exit;
+    this.saving = true;
+    if (this.canExit) {
+      this.attendanceModule
+        .markLeft(this.punchInData)
+        .then(() => {
+          this.interns[this.findInternIndex()].type = eAttendanceType.Exit;
+        })
+        .catch((err) => {
+          console.error(err);
+          Dialog.alert({
+            title: "Alerte",
+            message: "Une erreur s'est produite",
+          });
+        });
     } else {
       Dialog.alert({
         title: "Alerte",
         message: "Ce Stagiaire n'est pas présent!",
       });
     }
+    this.saving = false;
+  }
+  get canEnter() {
+    return (
+      this.findInternIndex() != -1 &&
+      this.interns[this.findInternIndex()].type == eAttendanceType.Absent
+    );
+  }
+  get canExit() {
+    return (
+      this.findInternIndex() != -1 &&
+      this.interns[this.findInternIndex()].type == eAttendanceType.Enter
+    );
   }
 }
 </script>
