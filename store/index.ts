@@ -12,6 +12,7 @@ export const store = new Vuex.Store({
     uiModule: Ui,
     configurationModule: Configuration,
     internModule: InternModule,
-    attendanceModule: Attendance
+    attendanceModule: Attendance,
+    usersModule: UsersModule
   }
 });

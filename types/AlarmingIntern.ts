@@ -1,7 +1,7 @@
 type AlarmingIntern = {
   id: number;
   fullName: string;
-  message: string;
+  reason: string;
 };
 
 export default AlarmingIntern;

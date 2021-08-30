@@ -5,6 +5,7 @@ import { eGender } from "~/types/eGender";
 import { eInternState } from "~/types/eInternState";
 import InternListItem from "~/types/InternListItem";
 import FormDto from "~/types/FormDto";
+import { $axios } from "~/utils/api";
 @Module({
   name: "internModule",
   stateFactory: true
@@ -49,4 +50,12 @@ export default class InternModule extends VuexModule {
     })
   }
 
+  @Action
+  LoadInterns()
+  {
+    return $axios.$get("/interns")
+      .then((data: InternListItem[]) => {
+        this.context.commit("SetInterns", data)
+      })
+  }
 }

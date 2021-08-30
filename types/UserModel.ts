@@ -1,6 +1,6 @@
 type UserModel = {
-    nom: string
-    prenom: string
+    lastName: string
+    firstName: string
     email: string
     role: number
     password: string

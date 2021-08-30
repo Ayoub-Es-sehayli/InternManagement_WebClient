@@ -3,12 +3,9 @@
     <b-table-column field="fullName" label="Stagiaire" v-slot="props">{{
       props.row.fullName
     }}</b-table-column>
-    <b-table-column
-      field="daysToFinish"
-      label="Message d'Alerte"
-      v-slot="props"
-      >{{ props.row.message }}</b-table-column
-    >
+    <b-table-column field="reason" label="Message d'Alerte" v-slot="props">{{
+      props.row.reason
+    }}</b-table-column>
     <b-table-column field="actions" label="Actions">
       <div>
         <b-button type="is-info">

@@ -41,7 +41,7 @@
               <option
                 v-for="division in department.divisions"
                 :key="division.id"
-                :value="division.id"
+                :value="division.name"
               >
                 {{ division.name }}
               </option>
@@ -133,13 +133,16 @@ export default class Interns extends Vue {
   }
   LoadInterns() {
     this.internsLoading = true;
-    this.$axios
-      .$get(process.env.BASE_URL + "/interns")
-      .then((data: InternListItem[]) => {
-        this.internModule.SetInterns(data);
+    this.internModule
+      .LoadInterns()
+      .then(() => {
         this.interns = this.internModule.interns!!;
-        this.internsLoading = false;
+      })
+      .catch((err) => {
+        console.error(err);
+        this.interns = [];
       });
+    this.internsLoading = false;
   }
 
   getRowClass(row: any, index: number) {
