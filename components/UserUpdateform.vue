@@ -24,6 +24,7 @@
           size="is-default"
           @blur="changedState.lastName = true"
           required
+          :disabled="saving"
         >
         </b-input>
       </b-field>
@@ -47,6 +48,7 @@
           size="is-default"
           @blur="changedState.firstName = true"
           required
+          :disabled="saving"
         >
         </b-input>
       </b-field>
@@ -65,6 +67,7 @@
           v-model="userModel.email"
           @blur="changedState.email = true"
           required
+          :disabled="saving"
         >
         </b-input>
       </b-field>
@@ -72,7 +75,9 @@
 
     <footer class="modal-card-foot modal-card-actions">
       <div>
-        <b-button class="save" @click="Save()">Enregistrer </b-button>
+        <b-button class="save" @click="Save()" :loading="saving"
+          >Enregistrer
+        </b-button>
 
         <b-button class="cancel" size="is-default" @click="CloseModal()"
           >Annuler
