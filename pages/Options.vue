@@ -23,13 +23,13 @@
       >
       </b-numberinput>
     </b-field>
-    <b-field>
+    <!-- <b-field>
       <nuxt-link to="/UpdatePassword"
         ><b-button expanded class="changerMotdePasse"
           >Changer le mot de passe</b-button
         ></nuxt-link
       >
-    </b-field>
+    </b-field> -->
     <b-field>
       <b-button
         expanded
@@ -76,7 +76,6 @@ export default class Option extends Vue {
     this.saving = true;
     this.$axios
       .$put(process.env.BASE_URL + "/preferences", this.configurationModel)
-      .then(() => {})
       .catch((err) => console.log(err))
       .finally(() => {
         this.saving = false;
